@@ -72,7 +72,6 @@
     </form>
   </div>
 
-  <!-- Overlay -->
   <div class="overlay" id="overlay">
     <div class="status-box" id="statusBox">Loading…</div>
   </div>
@@ -95,6 +94,11 @@
     // JSONP callback for login
     function handleLogin(resp) {
       if (resp.success) {
+        // store the signed‐in identifier
+        sessionStorage.setItem(
+          'username',
+          document.getElementById('email').value.trim()
+        );
         showOverlay('Success! Redirecting…');
         setTimeout(() => window.location.href = 'homepage.html', 3000);
       } else {
