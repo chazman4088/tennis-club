@@ -92,6 +92,7 @@
       overlay.classList.remove('active');
     }
 
+    // JSONP callback: result of checkEmail
     function handleCheck(resp) {
       if (resp.exists) {
         hideOverlay();
@@ -100,6 +101,7 @@
         }
         return;
       }
+      // proceed to addSignup
       showOverlay('Creating account…');
       const params = [
         'action=addsignup',
@@ -113,9 +115,10 @@
       document.body.appendChild(script);
     }
 
+    // JSONP callback: result of addSignup
     function handleAdd(resp) {
       if (resp.status === 'success') {
-        // store the signed‐in name
+        // store the signed-in name for homepage
         sessionStorage.setItem(
           'username',
           document.getElementById('name').value.trim()
