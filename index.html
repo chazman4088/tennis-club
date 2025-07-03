@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>St Mary's LTC – Welcome</title>
+
+  <style>
+    /* Base styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    body {
+      background: #FAFAFA url('assets/court-lines.svg') center/200px repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      color: #2E7D32;
+    }
+
+    .container {
+      text-align: center;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.85);
+      border: 3px solid #2E7D32;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      margin-bottom: 1.5rem;
+      font-size: 2.5rem;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .btn-tennis {
+      background: #FBC02D;
+      border: none;
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: #2E7D32;
+      font-weight: bold;
+      font-size: 1rem;
+      transition: transform 0.2s ease;
+    }
+
+    .btn-tennis:hover {
+      transform: scale(1.1);
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>St Mary's LTC</h1>
+
+    <div class="button-group">
+      <a href="signup.html" class="btn-tennis" title="Create account">
+        Sign Up
+      </a>
+
+      <a href="login.html" class="btn-tennis" title="Already a member?">
+        Log In
+      </a>
+    </div>
+  </div>
+</body>
+</html>
