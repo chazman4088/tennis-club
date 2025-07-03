@@ -1,51 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>St Mary's LTC – Sign Up</title>
-  <meta
-    name="description"
-    content="Join St Mary's LTC—sign up to access tournaments, events, and more."
-  />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet"/>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0; padding: 0;
-      font-family: 'Montserrat', sans-serif;
-    }
-    body {
-      background: #FAFAFA url('assets/court-lines.svg') center/200px repeat;
-      display: flex; align-items: center; justify-content: center;
-      min-height: 100vh; color: #2E7D32;
-    }
-    .container {
-      background: rgba(255,255,255,0.9);
-      padding: 2rem; border: 3px solid #2E7D32;
-      border-radius: 12px; width: 320px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    h1 { margin-bottom: 1.5rem; text-align: center; }
-    form {
-      display: flex; flex-direction: column; gap: 1rem;
-    }
-    input {
-      padding: 0.75rem; font-size: 1rem;
-      border: 2px solid #2E7D32; border-radius: 6px;
-    }
-    button {
-      padding: 0.75rem; font-size: 1rem;
-      background: #FBC02D; color: #2E7D32;
-      border: none; border-radius: 6px;
-      cursor: pointer; font-weight: bold;
-      transition: transform 0.1s ease;
-    }
-    button:hover { transform: scale(1.02); }
-    .message { color: red; font-size: 0.9rem; text-align: center; }
+    /* …your existing styles… */
   </style>
 </head>
 <body>
@@ -53,67 +14,53 @@
     <h1>Sign Up</h1>
     <div class="message" id="msg"></div>
     <form id="signupForm">
-      <input type="text" id="name" placeholder="Full Name" required />
-      <input type="email" id="email" placeholder="Email Address" required />
-      <input type="password" id="password" placeholder="Password" required />
+      <input type="text" id="name" placeholder="Full Name" required/>
+      <input type="email" id="email" placeholder="Email Address" required/>
+      <input type="password" id="password" placeholder="Password" required/>
       <button type="submit">Create Account</button>
     </form>
   </div>
 
   <script>
-    // Your deployed Apps Script Web App URL
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbxeVvMwdPrmJNQLMG7ye2kUhOnxCCHB2rWgPGKyXtDSKQ4h78YjAaelygH8ApYyDzZ4/exec';
 
     const form  = document.getElementById('signupForm');
     const msgEl = document.getElementById('msg');
 
-    form.addEventListener('submit', async e => {
+    // JSONP callback for checkEmail
+    function handleCheck(resp) {
+      if (resp.exists) {
+        if (confirm(`${form.email.value} already exists. Log in?`)) {
+          location.href = 'login.html';
+        }
+      } else {
+        // now do the JSONP for addSignup
+        const name  = encodeURIComponent(form.name.value);
+        const email = encodeURIComponent(form.email.value);
+        const pw    = encodeURIComponent(form.password.value);
+        const script = document.createElement('script');
+        script.src = `${GAS_URL}?action=addsignup&name=${name}&email=${email}&password=${pw}&callback=handleAdd`;
+        document.body.appendChild(script);
+      }
+    }
+
+    // JSONP callback for addSignup
+    function handleAdd(resp) {
+      if (resp.status === 'success') {
+        location.href = 'login.html';
+      } else {
+        msgEl.textContent = 'Sign-up failed. Please try again.';
+      }
+    }
+
+    form.addEventListener('submit', e => {
       e.preventDefault();
       msgEl.textContent = '';
-
-      const name     = document.getElementById('name').value.trim();
-      const email    = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-
-      // 1) Check if email exists via GET
-      try {
-        const checkUrl  = `${GAS_URL}?action=checkemail&email=${encodeURIComponent(email)}`;
-        const checkRes  = await fetch(checkUrl);
-        const { exists } = await checkRes.json();
-
-        if (exists) {
-          const goLogin = confirm(`${email} already exists, log in?`);
-          if (goLogin) {
-            window.location.href = 'login.html';
-          }
-          return;
-        }
-      } catch (err) {
-        msgEl.textContent = 'Error checking email. Please try again.';
-        console.error(err);
-        return;
-      }
-
-      // 2) Email is new → addSignup via GET
-      try {
-        const addUrl = 
-          `${GAS_URL}?action=addsignup` +
-          `&name=${encodeURIComponent(name)}` +
-          `&email=${encodeURIComponent(email)}` +
-          `&password=${encodeURIComponent(password)}`;
-
-        const addRes  = await fetch(addUrl);
-        const addJson = await addRes.json();
-
-        if (addJson.status === 'success') {
-          window.location.href = 'login.html';
-        } else {
-          msgEl.textContent = 'Sign-up failed. Please try again.';
-        }
-      } catch (err) {
-        msgEl.textContent = 'Error submitting form. Please try again.';
-        console.error(err);
-      }
+      const email = encodeURIComponent(form.email.value);
+      // kick off the JSONP “checkEmail”
+      const script = document.createElement('script');
+      script.src = `${GAS_URL}?action=checkemail&email=${email}&callback=handleCheck`;
+      document.body.appendChild(script);
     });
   </script>
 </body>
