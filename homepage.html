@@ -1,1 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>St Mary's LTC – Home</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    /* —— Tennis Theme —— */
+    * {
+      box-sizing: border-box;
+      margin: 0; padding: 0;
+      font-family: 'Montserrat', sans-serif;
+    }
+    body {
+      background: #FAFAFA url('assets/court-lines.svg') center/200px repeat;
+      color: #2E7D32;
+      min-height: 100vh;
+    }
+    .header {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      margin-top: 4rem;
+    }
+    .container h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    .container p {
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    Signed in as <span id="signedInAs">Guest</span>
+  </div>
 
+  <div class="container">
+    <h1>Welcome, <span id="welcomeName">Guest</span>!</h1>
+    <p>Enjoy your membership at St Mary's LTC.</p>
+    <!-- Add more homepage content here -->
+  </div>
+
+  <script>
+    // 1) Try URL param: ?name=Alice
+    const params = new URLSearchParams(window.location.search);
+    let name = params.get('name');
+
+    // 2) Fallback: sessionStorage (if you set it in login/signup)
+    if (!name) {
+      name = sessionStorage.getItem('username');
+    }
+
+    // 3) Default
+    if (!name) {
+      name = 'Guest';
+    }
+
+    // Inject into page
+    document.getElementById('signedInAs').textContent = name;
+    document.getElementById('welcomeName').textContent = name;
+  </script>
+</body>
+</html>
