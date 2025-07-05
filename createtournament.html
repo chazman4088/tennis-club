@@ -150,6 +150,8 @@
       'accent-orange','accent-purple','accent-teal'
     ];
 
+    let picks = [];
+
     function showOverlay(txt) {
       statusBox.textContent = txt;
       overlay.classList.add('active');
@@ -157,8 +159,6 @@
     function hideOverlay() {
       overlay.classList.remove('active');
     }
-
-    let picks = [];
 
     // fetch and render players
     function loadPlayers() {
@@ -180,32 +180,43 @@
       });
     }
 
-    // update picks & accent colors
-    containerEl.addEventListener('change', () => {
+    // enforce selection & colorize
+    containerEl.addEventListener('change', e => {
       const style = styleEl.value;
-      // collect checked boxes
-      const checked = Array.from(containerEl.querySelectorAll('input:checked'));
-      // reset all labels
-      containerEl.querySelectorAll('label').forEach(lbl => {
-        colorClasses.forEach(c=>lbl.classList.remove(c));
-      });
-      // assign colors if doubles
-      picks = checked.map(cb=>cb.value);
-      if (style === 'Doubles' || style === 'Mixed doubles') {
-        checked.forEach((cb, i) => {
-          const cls = colorClasses[Math.floor(i/2) % colorClasses.length];
-          cb.parentElement.classList.add(cls);
-        });
+      const maxPick = (style === 'Doubles') ? 2
+                     : (style === 'Mixed doubles') ? 4
+                     : Infinity;
+      const boxes = Array.from(containerEl.querySelectorAll('input[type=checkbox]'));
+      const checked = boxes.filter(cb => cb.checked);
+
+      // enforce limit
+      if (checked.length > maxPick) {
+        e.target.checked = false;
+        return;
       }
+
+      // reset colors
+      boxes.forEach(cb => {
+        colorClasses.forEach(c => cb.parentElement.classList.remove(c));
+      });
+
+      // apply grouping colors
+      checked.forEach((cb, i) => {
+        const groupCount = (style === 'Doubles' || style === 'Mixed doubles') ? 2 : Infinity;
+        const cls = colorClasses[Math.floor(i / groupCount) % colorClasses.length];
+        if (cls) cb.parentElement.classList.add(cls);
+      });
+
+      picks = checked.map(cb => cb.value);
     });
 
-    // reload players when style changes
+    // reset when style changes
     styleEl.addEventListener('change', () => {
       picks = [];
       loadPlayers();
     });
 
-    // submit
+    // submit form
     form.addEventListener('submit', e => {
       e.preventDefault();
       showOverlay('Creating…');
