@@ -43,6 +43,23 @@
     .btn-tennis:hover {
       transform: scale(1.02);
     }
+    /* Right-hand admin panel */
+    .admin-panel {
+      position: fixed;
+      top: 4rem;
+      right: 1rem;
+      width: 200px;
+      background: rgba(255,255,255,0.9);
+      border: 2px solid #2E7D32;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .admin-panel .btn-tennis {
+      width: 100%;
+      margin-top: 0;
+    }
   </style>
 </head>
 <body>
@@ -54,6 +71,10 @@
     <h1>Welcome, <span id="welcomeName">Admin</span>!</h1>
     <a href="mytournaments.html" class="btn-tennis">My tournaments</a>
     <!-- Admin-specific content goes here -->
+  </div>
+
+  <div class="admin-panel">
+    <a href="createtournament.html" class="btn-tennis">Create tournament</a>
   </div>
 
   <script>
