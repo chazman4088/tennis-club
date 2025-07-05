@@ -19,6 +19,7 @@
       background: #FAFAFA url('assets/court-lines.svg') center/200px repeat;
       color: #2E7D32;
       min-height: 100vh;
+      padding: 0;
     }
     .header {
       position: fixed;
@@ -56,6 +57,26 @@
     }
     .btn-tennis:hover {
       transform: scale(1.02);
+    }
+
+    /* —— Responsive Adjustments —— */
+    @media (max-width: 600px) {
+      .header {
+        top: 0.5rem;
+        left: 0.5rem;
+        font-size: 0.9rem;
+      }
+      .container {
+        padding: 1rem;
+        margin-top: 3rem;
+      }
+      .container h1 {
+        font-size: 2rem;
+      }
+      .btn-tennis {
+        width: 100%;
+        font-size: 0.95rem;
+      }
     }
   </style>
 </head>
