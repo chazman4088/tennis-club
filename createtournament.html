@@ -180,37 +180,29 @@
       });
     }
 
-    // enforce selection & colorize
-    containerEl.addEventListener('change', e => {
+    // colorize teams in pairs, no selection limit
+    containerEl.addEventListener('change', () => {
       const style = styleEl.value;
-      const maxPick = (style === 'Doubles') ? 2
-                     : (style === 'Mixed doubles') ? 4
-                     : Infinity;
       const boxes = Array.from(containerEl.querySelectorAll('input[type=checkbox]'));
       const checked = boxes.filter(cb => cb.checked);
-
-      // enforce limit
-      if (checked.length > maxPick) {
-        e.target.checked = false;
-        return;
-      }
 
       // reset colors
       boxes.forEach(cb => {
         colorClasses.forEach(c => cb.parentElement.classList.remove(c));
       });
 
-      // apply grouping colors
-      checked.forEach((cb, i) => {
-        const groupCount = (style === 'Doubles' || style === 'Mixed doubles') ? 2 : Infinity;
-        const cls = colorClasses[Math.floor(i / groupCount) % colorClasses.length];
-        if (cls) cb.parentElement.classList.add(cls);
-      });
+      // apply colors only for Doubles/Mixed doubles
+      if (style === 'Doubles' || style === 'Mixed doubles') {
+        checked.forEach((cb, i) => {
+          const cls = colorClasses[Math.floor(i / 2) % colorClasses.length];
+          cb.parentElement.classList.add(cls);
+        });
+      }
 
       picks = checked.map(cb => cb.value);
     });
 
-    // reset when style changes
+    // reload players when style changes
     styleEl.addEventListener('change', () => {
       picks = [];
       loadPlayers();
@@ -251,7 +243,7 @@
       }
     }
 
-    // init
+    // initialize
     loadPlayers();
   </script>
 </body>
