@@ -121,6 +121,23 @@
     .details-box .btn-tennis {
       margin-top: 1rem; width: 100%; text-align: center;
     }
+
+    /* —— Responsive Adjustments —— */
+    @media (max-width: 900px) {
+      .layout {
+        flex-direction: column;
+      }
+      .sidebar,
+      .admin-panel {
+        width: 100%;
+        border: none;
+        box-shadow: none;
+        height: auto;
+      }
+      .container {
+        padding: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -206,7 +223,6 @@
       const t = tournaments[idx];
       currentTour = t.name;
       currentStyle = t.style.toLowerCase();
-      // details
       const c = document.getElementById('detailsContent');
       const players = t.players.split(',').map(p => `<li>${p.trim()}</li>`).join('');
       c.innerHTML = `
@@ -244,7 +260,7 @@
                  + '</tr></thead><tbody>';
         board.forEach((r, i) => {
           html += `<tr>
-            <td>${r.position||i+1}</td>
+            <td>${r.position || i+1}</td>
             <td>${r.participant}</td>
             <td>${r.points}</td>
             <td>${r.wins}</td>
