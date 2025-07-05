@@ -161,7 +161,6 @@
       overlay.classList.remove('active');
     }
 
-    // fetch and render players
     function loadPlayers() {
       containerEl.textContent = 'Loading players…';
       const script = document.createElement('script');
@@ -182,7 +181,6 @@
       });
     }
 
-    // handle check/uncheck: record time, reorder picks, color groups
     containerEl.addEventListener('change', e => {
       if (e.target.type !== 'checkbox') return;
       const name = e.target.value;
@@ -191,41 +189,46 @@
       } else {
         delete pickTimes[name];
       }
-      // sort by time asc
-      picks = Object.keys(pickTimes)
-                    .sort((a,b) => pickTimes[a] - pickTimes[b]);
-      // reset all label classes
+      picks = Object.keys(pickTimes).sort((a, b) => pickTimes[a] - pickTimes[b]);
+      // reset classes
       containerEl.querySelectorAll('label').forEach(lbl => {
-        colorClasses.forEach(c=>lbl.classList.remove(c));
+        colorClasses.forEach(c => lbl.classList.remove(c));
       });
-      // color groups of 2 for doubles/mixed
+      // color in pairs
       const style = styleEl.value;
       if (style === 'Doubles' || style === 'Mixed doubles') {
         picks.forEach((player, idx) => {
-          const cls = colorClasses[Math.floor(idx/2) % colorClasses.length];
-          const cbLabel = containerEl.querySelector(`input[value="${player}"]`).parentElement;
-          cbLabel.classList.add(cls);
+          const cls = colorClasses[Math.floor(idx / 2) % colorClasses.length];
+          const lbl = containerEl.querySelector(`input[value="${player}"]`).parentElement;
+          lbl.classList.add(cls);
         });
       }
     });
 
-    // reset on style change
     styleEl.addEventListener('change', () => {
       pickTimes = {};
       picks = [];
       loadPlayers();
     });
 
-    // submit form
     form.addEventListener('submit', e => {
       e.preventDefault();
       showOverlay('Creating…');
+      const style = styleEl.value;
+      // build players list with team numbers if needed
+      const outPlayers = picks.map((player, idx) => {
+        if (style === 'Doubles' || style === 'Mixed doubles') {
+          const teamNum = Math.floor(idx / 2) + 1;
+          return `${player}(${teamNum})`;
+        }
+        return player;
+      });
       const data = {
         name:      document.getElementById('tName').value.trim(),
-        style:     styleEl.value,
+        style,
         startDate: document.getElementById('startDate').value,
         endDate:   document.getElementById('endDate').value,
-        players:   picks.join(',')
+        players:   outPlayers.join(',')
       };
       const params = [
         `action=addtournament`,
@@ -251,7 +254,7 @@
       }
     }
 
-    // initialize on load
+    // initialize
     loadPlayers();
   </script>
 </body>
