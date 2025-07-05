@@ -93,10 +93,14 @@
     // JSONP callback for login
     function handleLogin(resp) {
       if (resp.success) {
-        // store the user’s name in sessionStorage
         sessionStorage.setItem('username', resp.name);
+        sessionStorage.setItem('isAdmin', resp.admin ? 'true' : 'false');
         showOverlay('Success! Redirecting…');
-        setTimeout(() => window.location.href = 'homepage.html', 3000);
+        setTimeout(() => {
+          window.location.href = resp.admin
+            ? 'adminhomepage.html'
+            : 'homepage.html';
+        }, 3000);
       } else {
         showOverlay('Invalid credentials');
         setTimeout(() => window.location.href = 'login.html', 3000);
