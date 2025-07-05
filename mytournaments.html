@@ -46,23 +46,18 @@
       grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
       gap: 1.5rem;
     }
-    .tournament-card {
-      background: rgba(255,255,255,0.9);
-      border: 2px solid #2E7D32;
-      border-radius: 8px;
-      padding: 1rem;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+    /* placeholder message */
+    .tournament-list .empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      font-size: 1rem;
+      color: #555;
     }
-    .tournament-card h2 {
-      font-size: 1.25rem;
-      margin-bottom: 0.5rem;
-    }
-    .tournament-card p {
-      font-size: 0.95rem;
-      margin-bottom: 1rem;
+    .footer {
+      text-align: center;
+      padding: 1rem 0;
+      background: rgba(255,255,255,0.8);
+      border-top: 1px solid #2E7D32;
     }
     .btn-tennis {
       padding: 0.5rem 1rem;
@@ -73,18 +68,11 @@
       border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
-      text-align: center;
       text-decoration: none;
       transition: transform .1s ease;
     }
     .btn-tennis:hover {
       transform: scale(1.02);
-    }
-    .footer {
-      text-align: center;
-      padding: 1rem 0;
-      background: rgba(255,255,255,0.8);
-      border-top: 1px solid #2E7D32;
     }
   </style>
 </head>
@@ -96,25 +84,7 @@
   <div class="container">
     <h1>My Tournaments</h1>
     <div class="tournament-list">
-      <div class="tournament-card">
-        <h2>Spring Open 2025</h2>
-        <p>Date: April 12–14, 2025</p>
-        <p>Location: Main Court</p>
-        <a href="#" class="btn-tennis">View Details</a>
-      </div>
-      <div class="tournament-card">
-        <h2>Summer Doubles</h2>
-        <p>Date: June 20–22, 2025</p>
-        <p>Location: East Courts</p>
-        <a href="#" class="btn-tennis">View Details</a>
-      </div>
-      <div class="tournament-card">
-        <h2>Autumn Singles</h2>
-        <p>Date: September 5–7, 2025</p>
-        <p>Location: West Courts</p>
-        <a href="#" class="btn-tennis">View Details</a>
-      </div>
-      <!-- Add more tournament cards here -->
+      <div class="empty">No tournaments to display.</div>
     </div>
   </div>
 
