@@ -10,98 +10,67 @@
   />
   <style>
     /* —— Tennis Theme —— */
-    * {
-      box-sizing: border-box;
-      margin: 0; padding: 0;
-      font-family: 'Montserrat', sans-serif;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0;
+        font-family: 'Montserrat', sans-serif; }
     body {
       background: #FAFAFA url('assets/court-lines.svg') center/200px repeat;
       color: #2E7D32;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      display: flex; flex-direction: column;
     }
     .header {
-      position: fixed;
-      top: 1rem; left: 1rem;
+      position: fixed; top: 1rem; left: 1rem;
       font-size: 1rem; font-weight: 600;
     }
     .container {
-      flex: 1;
-      margin-top: 4rem;
-      padding: 2rem;
-      max-width: 800px;
-      width: 100%;
-      margin-left: auto;
-      margin-right: auto;
+      flex: 1; margin-top: 4rem; padding: 2rem;
+      max-width: 800px; width: 100%; margin: 0 auto;
     }
     .container h1 {
-      font-size: 2.5rem;
-      margin-bottom: 1.5rem;
+      font-size: 2.5rem; margin-bottom: 1.5rem;
       text-align: center;
     }
     .tournament-list {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fill,minmax(240px,1fr));
       gap: 1.5rem;
     }
     .tournament-list .empty {
       grid-column: 1 / -1;
-      text-align: center;
-      font-size: 1rem;
-      color: #555;
+      text-align: center; font-size: 1rem; color: #555;
     }
-    /* cards */
     .tournament-card {
       background: rgba(255,255,255,0.9);
-      border: 2px solid #2E7D32;
-      border-radius: 8px;
-      padding: 1rem;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      border: 2px solid #2E7D32; border-radius: 8px;
+      padding: 1rem; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      display: flex; flex-direction: column; justify-content: space-between;
     }
     .tournament-card h2 {
-      font-size: 1.25rem;
-      margin-bottom: 0.5rem;
+      font-size: 1.25rem; margin-bottom: .5rem;
     }
     .tournament-card p {
-      font-size: 0.95rem;
-      margin-bottom: 1rem;
+      font-size: .95rem; margin-bottom: 1rem;
     }
     .btn-tennis {
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-      background: #FBC02D;
-      color: #2E7D32;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      text-decoration: none;
-      transition: transform .1s ease;
-      margin-top: 0.5rem;
+      padding: .5rem 1rem; font-size: .9rem;
+      background: #FBC02D; color: #2E7D32;
+      border: none; border-radius: 6px; font-weight: bold;
+      cursor: pointer; text-decoration: none;
+      transition: transform .1s ease; margin-top: .5rem;
     }
-    .btn-tennis:hover {
-      transform: scale(1.02);
-    }
+    .btn-tennis:hover { transform: scale(1.02); }
     .footer {
-      text-align: center;
-      padding: 1rem 0;
+      text-align: center; padding: 1rem 0;
       background: rgba(255,255,255,0.8);
       border-top: 1px solid #2E7D32;
     }
-    /* Details overlay */
     .details-overlay {
       position: fixed; top: 0; left: 0;
       width: 100%; height: 100%;
       background: rgba(0,0,0,0.5);
       display: flex; align-items: center; justify-content: center;
       opacity: 0; pointer-events: none;
-      transition: opacity .2s ease;
-      z-index: 1000;
+      transition: opacity .2s ease; z-index: 1000;
     }
     .details-overlay.active {
       opacity: 1; pointer-events: auto;
@@ -113,21 +82,15 @@
       color: #2E7D32; text-align: left;
       max-height: 90vh; overflow-y: auto;
     }
-    .details-box h3 {
-      margin-bottom: 1rem; font-size: 1.5rem;
-    }
+    .details-box h3 { margin-bottom: 1rem; font-size: 1.5rem; }
     .details-box h4 {
       margin-top: 1rem; margin-bottom: .5rem; font-size: 1.1rem;
     }
-    .details-box p {
-      margin: 0.5rem 0;
-    }
+    .details-box p { margin: .5rem 0; }
     .details-box ul {
-      list-style: none; padding: 0; margin: 0.5rem 0;
+      list-style: none; padding: 0; margin: .5rem 0;
     }
-    .details-box li {
-      margin: 0.25rem 0;
-    }
+    .details-box li { margin: .25rem 0; }
     .details-box table {
       width: 100%; border-collapse: collapse; margin-top: .5rem;
     }
@@ -178,10 +141,12 @@
         <select id="winnerSelect" required>
           <option value="" disabled selected>Select winner</option>
         </select>
+
         <label for="loserSelect">Loser</label>
         <select id="loserSelect" required>
           <option value="" disabled selected>Select loser</option>
         </select>
+
         <button type="submit" class="btn-tennis">Submit</button>
       </form>
 
@@ -190,22 +155,20 @@
   </div>
 
   <script>
-    // pull name from sessionStorage
     const name = sessionStorage.getItem('username') || 'Guest';
     document.getElementById('signedInAs').textContent = name;
 
     const GAS_URL  = 'https://script.google.com/macros/s/AKfycbxeVvMwdPrmJNQLMG7ye2kUhOnxCCHB2rWgPGKyXtDSKQ4h78YjAaelygH8ApYyDzZ4/exec';
-    let myTours = [], currentTour = '';
+    let myTours = [], currentTour = '', currentStyle = '', currentPlayers = [];
 
-    // load all tournaments for this user
     function loadTournaments() {
-      const script = document.createElement('script');
-      script.src = `${GAS_URL}?action=gettournaments&callback=handleTours`;
-      document.body.appendChild(script);
+      const s = document.createElement('script');
+      s.src = `${GAS_URL}?action=gettournaments&callback=handleTours`;
+      document.body.appendChild(s);
     }
 
     function handleTours(resp) {
-      const all  = resp.tournaments || [];
+      const all = resp.tournaments || [];
       const mine = all.filter(t =>
         t.players.split(',').some(p => p.trim().startsWith(name))
       );
@@ -216,67 +179,69 @@
         listEl.innerHTML = '<div class="empty">No tournaments to display.</div>';
         return;
       }
-      mine.forEach((t, i) => {
+      mine.forEach((t,i) => {
         const card = document.createElement('div');
         card.className = 'tournament-card';
-
-        const h2     = document.createElement('h2');
+        const h2 = document.createElement('h2');
         h2.textContent = t.name;
         const pStyle = document.createElement('p');
         pStyle.textContent = `Style: ${t.style}`;
         const pDates = document.createElement('p');
         pDates.textContent = `Dates: ${t.startDate} – ${t.endDate}`;
-
-        const btnView = document.createElement('button');
-        btnView.textContent = 'View Details';
-        btnView.className = 'btn-tennis';
-        btnView.addEventListener('click', () => showDetails(i));
-
-        card.append(h2, pStyle, pDates, btnView);
+        const btn = document.createElement('button');
+        btn.textContent = 'View Details';
+        btn.className = 'btn-tennis';
+        btn.addEventListener('click', () => showDetails(i));
+        card.append(h2, pStyle, pDates, btn);
         listEl.append(card);
       });
     }
 
-    // show details + leaderboard + score form
     function showDetails(idx) {
       const t = myTours[idx];
       currentTour = t.name;
-      // fill details
+      currentStyle = t.style.toLowerCase();
+      currentPlayers = t.players.split(',').map(p=>p.trim());
+      // details
       const d = document.getElementById('detailsContent');
-      const playersList = t.players
-        .split(',')
-        .map(p => `<li>${p.trim()}</li>`).join('');
       d.innerHTML = `
         <p><strong>Name:</strong> ${t.name}</p>
         <p><strong>Style:</strong> ${t.style}</p>
         <p><strong>Start:</strong> ${t.startDate}</p>
         <p><strong>End:</strong> ${t.endDate}</p>
         <p><strong>Players:</strong></p>
-        <ul>${playersList}</ul>
+        <ul>${currentPlayers.map(p=>`<li>${p}</li>`).join('')}</ul>
       `;
-      // load leaderboard
       loadLeaderboard(t.name);
-      // show overlay
       document.getElementById('detailsOverlay').classList.add('active');
     }
 
-    // fetch leaderboard
     function loadLeaderboard(name) {
       document.getElementById('leaderboardContent').textContent = 'Loading…';
-      const script = document.createElement('script');
-      script.src = `${GAS_URL}?action=getleaderboard&name=${encodeURIComponent(name)}&callback=handleBoard`;
-      document.body.appendChild(script);
+      const s = document.createElement('script');
+      s.src = `${GAS_URL}?action=getleaderboard&name=${encodeURIComponent(name)}&callback=handleBoard`;
+      document.body.appendChild(s);
     }
+
     function handleBoard(resp) {
-      const board = resp.board || [];
-      const container = document.getElementById('leaderboardContent');
+      let board = resp.board || [];
+      // sort by rules
+      if (currentStyle === 'ladder tournament') {
+        board.sort((a,b)=>Number(a.position)-Number(b.position));
+      } else if (currentStyle === 'league') {
+        board.sort((a,b)=>Number(b.points)-Number(a.points));
+      } else {
+        board.sort((a,b)=>Number(a.position||0)-Number(b.position||0));
+      }
+      // render
+      const c = document.getElementById('leaderboardContent');
       if (!board.length) {
-        container.innerHTML = '<div class="empty">No data.</div>';
+        c.innerHTML = '<div class="empty">No data.</div>';
       } else {
         let html = '<table><thead><tr>'
-          + '<th>#</th><th>Name</th><th>Pts</th><th>W</th><th>L</th>'
-          + '</tr></thead><tbody>';
-        board.forEach((r, i) => {
+          +'<th>#</th><th>Name</th><th>Pts</th><th>W</th><th>L</th>'
+          +'</tr></thead><tbody>';
+        board.forEach((r,i)=>{
           html += `<tr>
             <td>${r.position||i+1}</td>
             <td>${r.participant}</td>
@@ -286,50 +251,51 @@
           </tr>`;
         });
         html += '</tbody></table>';
-        container.innerHTML = html;
+        c.innerHTML = html;
       }
-      populateScoreForm(board.map(r => r.participant));
+      populateScoreForm();
     }
 
-    // fill winner/loser selects
-    function populateScoreForm(list) {
+    function populateScoreForm() {
       const win = document.getElementById('winnerSelect');
       const los = document.getElementById('loserSelect');
       win.innerHTML = '<option value="" disabled selected>Select winner</option>';
       los.innerHTML = '<option value="" disabled selected>Select loser</option>';
-      list.forEach(name => {
-        const o1 = new Option(name, name);
-        const o2 = new Option(name, name);
-        win.add(o1);
-        los.add(o2);
+      let opts = [];
+      if (currentStyle === 'doubles' || currentStyle === 'mixed doubles') {
+        for (let i=0; i<currentPlayers.length; i+=2) {
+          const team = `${currentPlayers[i]} & ${currentPlayers[i+1]||''}`;
+          opts.push(team);
+        }
+      } else {
+        opts = currentPlayers;
+      }
+      opts.forEach(n=>{
+        win.add(new Option(n,n));
+        los.add(new Option(n,n));
       });
     }
 
-    // submit result handler
-    document.getElementById('scoreForm').addEventListener('submit', e => {
+    document.getElementById('scoreForm').addEventListener('submit',e=>{
       e.preventDefault();
-      const winner = document.getElementById('winnerSelect').value;
-      const loser  = document.getElementById('loserSelect').value;
-      const script = document.createElement('script');
-      script.src = `${GAS_URL}?action=submitresult`
-        + `&name=${encodeURIComponent(currentTour)}`
-        + `&winner=${encodeURIComponent(winner)}`
-        + `&loser=${encodeURIComponent(loser)}`
-        + `&callback=handleSubmit`;
-      document.body.appendChild(script);
+      const w = document.getElementById('winnerSelect').value;
+      const l = document.getElementById('loserSelect').value;
+      const s = document.createElement('script');
+      s.src = `${GAS_URL}?action=submitresult`
+        +`&name=${encodeURIComponent(currentTour)}`
+        +`&winner=${encodeURIComponent(w)}`
+        +`&loser=${encodeURIComponent(l)}`
+        +`&callback=handleSubmit`;
+      document.body.appendChild(s);
     });
 
     function handleSubmit(resp) {
-      if (resp.status === 'success') {
-        loadLeaderboard(currentTour);
-      } else {
-        alert('Error submitting result.');
-      }
+      if (resp.status==='success') loadLeaderboard(currentTour);
+      else alert('Error submitting result.');
     }
 
-    // close overlay
     document.getElementById('closeDetails')
-      .addEventListener('click', () => {
+      .addEventListener('click',()=>{
         document.getElementById('detailsOverlay').classList.remove('active');
       });
 
