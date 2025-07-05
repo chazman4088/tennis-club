@@ -21,6 +21,7 @@
       justify-content: center;
       height: 100vh;
       color: #2E7D32;
+      padding: 1rem;
     }
 
     .container {
@@ -30,6 +31,8 @@
       border: 3px solid #2E7D32;
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 360px;
     }
 
     h1 {
@@ -62,6 +65,26 @@
     .btn-tennis:hover {
       transform: scale(1.1);
       cursor: pointer;
+    }
+
+    /* —— Responsive Adjustments —— */
+    @media (max-width: 400px) {
+      h1 {
+        font-size: 2rem;
+      }
+      .button-group {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .container {
+        padding: 1.5rem;
+        max-width: 100%;
+      }
+      .btn-tennis {
+        width: 60px;
+        height: 60px;
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
