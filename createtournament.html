@@ -150,7 +150,8 @@
       'accent-orange','accent-purple','accent-teal'
     ];
 
-    let picks = [];
+    let pickTimes = {};   // { playerName: timestamp }
+    let picks = [];       // ordered list
 
     function showOverlay(txt) {
       statusBox.textContent = txt;
@@ -167,6 +168,7 @@
       script.src = `${GAS_URL}?action=getplayers&callback=handlePlayers`;
       document.body.appendChild(script);
     }
+
     function handlePlayers(resp) {
       containerEl.innerHTML = '';
       resp.players.forEach(name => {
@@ -180,30 +182,36 @@
       });
     }
 
-    // colorize teams in pairs, no selection limit
-    containerEl.addEventListener('change', () => {
-      const style = styleEl.value;
-      const boxes = Array.from(containerEl.querySelectorAll('input[type=checkbox]'));
-      const checked = boxes.filter(cb => cb.checked);
-
-      // reset colors
-      boxes.forEach(cb => {
-        colorClasses.forEach(c => cb.parentElement.classList.remove(c));
+    // handle check/uncheck: record time, reorder picks, color groups
+    containerEl.addEventListener('change', e => {
+      if (e.target.type !== 'checkbox') return;
+      const name = e.target.value;
+      if (e.target.checked) {
+        pickTimes[name] = Date.now();
+      } else {
+        delete pickTimes[name];
+      }
+      // sort by time asc
+      picks = Object.keys(pickTimes)
+                    .sort((a,b) => pickTimes[a] - pickTimes[b]);
+      // reset all label classes
+      containerEl.querySelectorAll('label').forEach(lbl => {
+        colorClasses.forEach(c=>lbl.classList.remove(c));
       });
-
-      // apply colors only for Doubles/Mixed doubles
+      // color groups of 2 for doubles/mixed
+      const style = styleEl.value;
       if (style === 'Doubles' || style === 'Mixed doubles') {
-        checked.forEach((cb, i) => {
-          const cls = colorClasses[Math.floor(i / 2) % colorClasses.length];
-          cb.parentElement.classList.add(cls);
+        picks.forEach((player, idx) => {
+          const cls = colorClasses[Math.floor(idx/2) % colorClasses.length];
+          const cbLabel = containerEl.querySelector(`input[value="${player}"]`).parentElement;
+          cbLabel.classList.add(cls);
         });
       }
-
-      picks = checked.map(cb => cb.value);
     });
 
-    // reload players when style changes
+    // reset on style change
     styleEl.addEventListener('change', () => {
+      pickTimes = {};
       picks = [];
       loadPlayers();
     });
@@ -243,7 +251,7 @@
       }
     }
 
-    // initialize
+    // initialize on load
     loadPlayers();
   </script>
 </body>
