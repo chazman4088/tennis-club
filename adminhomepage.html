@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>St Mary's LTC – Admin Home</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    /* —— Tennis Theme —— */
+    * {
+      box-sizing: border-box;
+      margin: 0; padding: 0;
+      font-family: 'Montserrat', sans-serif;
+    }
+    body {
+      background: #FAFAFA url('assets/court-lines.svg') center/200px repeat;
+      color: #2E7D32;
+      min-height: 100vh;
+    }
+    .header {
+      position: fixed; top: 1rem; left: 1rem;
+      font-size: 1rem; font-weight: 600;
+    }
+    .container {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 2rem; margin-top: 4rem;
+    }
+    .container h1 {
+      font-size: 2.5rem; margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    Logged in as <span id="signedInAs">Admin</span> (Admin)
+  </div>
+
+  <div class="container">
+    <h1>Welcome, <span id="welcomeName">Admin</span>!</h1>
+    <!-- Admin-specific content goes here -->
+  </div>
+
+  <script>
+    // pull name & admin flag
+    const name    = sessionStorage.getItem('username') || 'Guest';
+    document.getElementById('signedInAs').textContent = name;
+    document.getElementById('welcomeName').textContent = name;
+  </script>
+</body>
+</html>
