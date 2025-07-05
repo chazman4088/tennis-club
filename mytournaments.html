@@ -71,12 +71,6 @@
       font-size: 0.95rem;
       margin-bottom: 1rem;
     }
-    .footer {
-      text-align: center;
-      padding: 1rem 0;
-      background: rgba(255,255,255,0.8);
-      border-top: 1px solid #2E7D32;
-    }
     .btn-tennis {
       padding: 0.5rem 1rem;
       font-size: 0.9rem;
@@ -88,9 +82,50 @@
       cursor: pointer;
       text-decoration: none;
       transition: transform .1s ease;
+      margin-top: 0.5rem;
     }
     .btn-tennis:hover {
       transform: scale(1.02);
+    }
+    .footer {
+      text-align: center;
+      padding: 1rem 0;
+      background: rgba(255,255,255,0.8);
+      border-top: 1px solid #2E7D32;
+    }
+    /* Details overlay */
+    .details-overlay {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity .2s ease;
+      z-index: 1000;
+    }
+    .details-overlay.active {
+      opacity: 1; pointer-events: auto;
+    }
+    .details-box {
+      background: #fff; padding: 2rem;
+      border-radius: 8px; max-width: 400px; width: 90%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      color: #2E7D32; text-align: left;
+    }
+    .details-box h3 {
+      margin-bottom: 1rem; font-size: 1.5rem;
+    }
+    .details-box p {
+      margin: 0.5rem 0;
+    }
+    .details-box ul {
+      list-style: none; padding: 0; margin: 0.5rem 0;
+    }
+    .details-box li {
+      margin: 0.25rem 0;
+    }
+    .details-box .btn-tennis {
+      margin-top: 1rem; width: 100%; text-align: center;
     }
   </style>
 </head>
@@ -110,12 +145,21 @@
     <a href="homepage.html" class="btn-tennis">Back to Home</a>
   </div>
 
+  <div class="details-overlay" id="detailsOverlay">
+    <div class="details-box">
+      <h3>Tournament Details</h3>
+      <div id="detailsContent"></div>
+      <button class="btn-tennis" id="closeDetails">Close</button>
+    </div>
+  </div>
+
   <script>
     // pull name from sessionStorage
     const name = sessionStorage.getItem('username') || 'Guest';
     document.getElementById('signedInAs').textContent = name;
 
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxeVvMwdPrmJNQLMG7ye2kUhOnxCCHB2rWgPGKyXtDSKQ4h78YjAaelygH8ApYyDzZ4/exec';
+    const GAS_URL  = 'https://script.google.com/macros/s/AKfycbxeVvMwdPrmJNQLMG7ye2kUhOnxCCHB2rWgPGKyXtDSKQ4h78YjAaelygH8ApYyDzZ4/exec';
+    let myTours = [];
 
     function loadTournaments() {
       const script = document.createElement('script');
@@ -124,30 +168,60 @@
     }
 
     function handleTours(resp) {
-      const all = resp.tournaments || [];
-      // filter for this user
+      const all  = resp.tournaments || [];
       const mine = all.filter(t =>
         t.players.split(',').some(p => p.trim().startsWith(name))
       );
+      myTours = mine;
       const listEl = document.getElementById('tourneyList');
       listEl.innerHTML = '';
       if (!mine.length) {
         listEl.innerHTML = '<div class="empty">No tournaments to display.</div>';
         return;
       }
-      mine.forEach(t => {
+      mine.forEach((t, i) => {
         const card = document.createElement('div');
         card.className = 'tournament-card';
-        const h2 = document.createElement('h2');
+
+        const h2     = document.createElement('h2');
         h2.textContent = t.name;
         const pStyle = document.createElement('p');
         pStyle.textContent = `Style: ${t.style}`;
         const pDates = document.createElement('p');
         pDates.textContent = `Dates: ${t.startDate} – ${t.endDate}`;
-        card.append(h2, pStyle, pDates);
+
+        const btnView = document.createElement('button');
+        btnView.textContent = 'View Details';
+        btnView.className = 'btn-tennis';
+        btnView.addEventListener('click', () => showDetails(i));
+
+        card.append(h2, pStyle, pDates, btnView);
         listEl.append(card);
       });
     }
+
+    function showDetails(idx) {
+      const t = myTours[idx];
+      const container = document.getElementById('detailsContent');
+      const playersList = t.players
+        .split(',')
+        .map(p => `<li>${p.trim()}</li>`)
+        .join('');
+      container.innerHTML = `
+        <p><strong>Name:</strong> ${t.name}</p>
+        <p><strong>Style:</strong> ${t.style}</p>
+        <p><strong>Start:</strong> ${t.startDate}</p>
+        <p><strong>End:</strong> ${t.endDate}</p>
+        <p><strong>Players:</strong></p>
+        <ul>${playersList}</ul>
+      `;
+      document.getElementById('detailsOverlay').classList.add('active');
+    }
+
+    document.getElementById('closeDetails')
+      .addEventListener('click', () => {
+        document.getElementById('detailsOverlay').classList.remove('active');
+      });
 
     loadTournaments();
   </script>
