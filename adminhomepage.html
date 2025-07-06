@@ -110,7 +110,10 @@
       list-style: none; padding: 0; margin: .5rem 0;
     }
     .details-box li {
-      margin: .25rem 0;
+      margin: .25rem 0; display: flex; justify-content: space-between; align-items: center;
+    }
+    .details-box li button {
+      font-size: .8rem; padding: .25rem .5rem;
     }
     .details-box table {
       width: 100%; border-collapse: collapse; margin-top: .5rem;
@@ -176,7 +179,6 @@
   <script>
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbxeVvMwdPrmJNQLMG7ye2kUhOnxCCHB2rWgPGKyXtDSKQ4h78YjAaelygH8ApYyDzZ4/exec';
 
-    // display admin name
     const adminName = sessionStorage.getItem('username') || 'Admin';
     document.getElementById('signedInAs').textContent = adminName;
     document.getElementById('welcomeName').textContent = adminName;
@@ -224,7 +226,12 @@
       currentTour = t.name;
       currentStyle = t.style.toLowerCase();
       const c = document.getElementById('detailsContent');
-      const players = t.players.split(',').map(p => `<li>${p.trim()}</li>`).join('');
+
+      const players = t.players.split(',').map(p => {
+        const trimmed = p.trim();
+        return `<li>${trimmed}<button class="btn-tennis" onclick="removePlayer('${trimmed.replace(/'/g,'\\\'')}')">Remove</button></li>`;
+      }).join('');
+
       c.innerHTML = `
         <p><strong>Name:</strong> ${t.name}</p>
         <p><strong>Style:</strong> ${t.style}</p>
@@ -233,67 +240,4 @@
         <p><strong>Players:</strong></p>
         <ul>${players}</ul>
       `;
-      loadLeaderboard(t.name);
-      document.getElementById('detailsOverlay').classList.add('active');
-    }
-
-    function loadLeaderboard(name) {
-      document.getElementById('leaderboardContent').textContent = 'Loading…';
-      const script = document.createElement('script');
-      script.src = `${GAS_URL}?action=getleaderboard&name=${encodeURIComponent(name)}&callback=handleBoard`;
-      document.body.appendChild(script);
-    }
-
-    function handleBoard(resp) {
-      let board = resp.board || [];
-      if (currentStyle.includes('ladder')) {
-        board.sort((a,b) => Number(a.position) - Number(b.position));
-      } else if (currentStyle.includes('league')) {
-        board.sort((a,b) => Number(b.points) - Number(a.points));
-      }
-      const container = document.getElementById('leaderboardContent');
-      if (!board.length) {
-        container.innerHTML = '<div class="empty">No data.</div>';
-      } else {
-        let html = '<table><thead><tr>'
-                 + '<th>#</th><th>Name</th><th>Pts</th><th>W</th><th>L</th>'
-                 + '</tr></thead><tbody>';
-        board.forEach((r, i) => {
-          html += `<tr>
-            <td>${r.position || i+1}</td>
-            <td>${r.participant}</td>
-            <td>${r.points}</td>
-            <td>${r.wins}</td>
-            <td>${r.losses}</td>
-          </tr>`;
-        });
-        html += '</tbody></table>';
-        container.innerHTML = html;
-      }
-    }
-
-    function deleteTournament(idx) {
-      const name = tournaments[idx].name;
-      const script = document.createElement('script');
-      script.src = `${GAS_URL}?action=deleteTournament&name=${encodeURIComponent(name)}&callback=handleDelete`;
-      document.body.appendChild(script);
-    }
-
-    function handleDelete(resp) {
-      if (resp.status === 'success') {
-        loadTournaments();
-        document.getElementById('detailsOverlay').classList.remove('active');
-      } else {
-        alert('Error deleting tournament.');
-      }
-    }
-
-    document.getElementById('closeDetails')
-      .addEventListener('click', () => {
-        document.getElementById('detailsOverlay').classList.remove('active');
-      });
-
-    loadTournaments();
-  </script>
-</body>
-</html>
+      loadLeaderboard
