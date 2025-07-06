@@ -19,16 +19,14 @@
       background: #FAFAFA url('assets/court-lines.svg') center/200px repeat;
       color: #2E7D32;
       display: flex; align-items: center; justify-content: center;
-      min-height: 100vh;
-      padding: 1rem;
+      min-height: 100vh; padding: 1rem;
     }
     .container {
       background: rgba(255,255,255,0.9);
       padding: 2rem;
       border: 3px solid #2E7D32;
       border-radius: 12px;
-      width: 100%;
-      max-width: 360px;
+      width: 100%; max-width: 360px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
     .container h1 {
@@ -41,12 +39,9 @@
     input[type="text"],
     input[type="date"],
     select {
-      padding: 0.75rem;
-      font-size: 1rem;
-      border: 2px solid #2E7D32;
-      border-radius: 6px;
-      background: #fff;
-      width: 100%;
+      padding: 0.75rem; font-size: 1rem;
+      border: 2px solid #2E7D32; border-radius: 6px;
+      background: #fff; width: 100%;
     }
     .player-container {
       max-height: 150px;
@@ -57,29 +52,16 @@
       background: #fff;
     }
     .player-label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      display: flex; align-items: center; gap: 0.5rem;
       margin-bottom: 0.5rem;
     }
-    .player-label input {
-      flex-shrink: 0;
-    }
-    /* accent colors */
-    .accent-blue input { accent-color: #2196F3; }
-    .accent-red input { accent-color: #E53935; }
-    .accent-green input { accent-color: #43A047; }
-    .accent-orange input { accent-color: #FB8C00; }
-    .accent-purple input { accent-color: #8E24AA; }
-    .accent-teal input { accent-color: #00897B; }
-
+    .player-label input { flex-shrink: 0; }
     .btn-tennis {
       padding: 0.75rem; font-size: 1rem;
       background: #FBC02D; color: #2E7D32;
       border: none; border-radius: 6px; font-weight: bold;
       cursor: pointer; transition: transform .1s ease;
-      width: 100%;
-      text-align: center;
+      width: 100%; text-align: center;
     }
     .btn-tennis:hover { transform: scale(1.02); }
 
@@ -90,8 +72,7 @@
       background: rgba(0,0,0,0.5);
       display: flex; align-items: center; justify-content: center;
       opacity: 0; pointer-events: none;
-      transition: opacity .2s ease;
-      z-index: 1000;
+      transition: opacity .2s ease; z-index: 1000;
     }
     .overlay.active {
       opacity: 1; pointer-events: auto;
@@ -105,13 +86,8 @@
 
     /* —— Responsive Adjustments —— */
     @media (max-width: 400px) {
-      .container {
-        padding: 1rem;
-        max-width: 100%;
-      }
-      body {
-        padding: 0;
-      }
+      .container { padding: 1rem; max-width: 100%; }
+      body { padding: 0; }
     }
   </style>
 </head>
@@ -122,6 +98,10 @@
       <div>
         <label for="tName">Tournament name</label>
         <input type="text" id="tName" placeholder="Enter name" required/>
+      </div>
+      <div>
+        <label for="tCode">Tournament code (4 digits)</label>
+        <input type="text" id="tCode" placeholder="e.g. 1234" pattern="\d{4}" maxlength="4" required/>
       </div>
       <div>
         <label for="tStyle">Tournament style</label>
@@ -164,13 +144,8 @@
     const overlay     = document.getElementById('overlay');
     const statusBox   = document.getElementById('statusBox');
 
-    const colorClasses = [
-      'accent-blue','accent-red','accent-green',
-      'accent-orange','accent-purple','accent-teal'
-    ];
-
-    let pickTimes = {};   // { playerName: timestamp }
-    let picks = [];       // ordered list
+    const colorClasses = ['accent-blue','accent-red','accent-green','accent-orange','accent-purple','accent-teal'];
+    let pickTimes = {}, picks = [];
 
     function showOverlay(txt) {
       statusBox.textContent = txt;
@@ -203,21 +178,14 @@
     containerEl.addEventListener('change', e => {
       if (e.target.type !== 'checkbox') return;
       const name = e.target.value;
-      if (e.target.checked) {
-        pickTimes[name] = Date.now();
-      } else {
-        delete pickTimes[name];
-      }
-      picks = Object.keys(pickTimes).sort((a, b) => pickTimes[a] - pickTimes[b]);
-      // reset classes
-      containerEl.querySelectorAll('label').forEach(lbl => {
-        colorClasses.forEach(c => lbl.classList.remove(c));
-      });
-      // color in pairs
+      if (e.target.checked) pickTimes[name] = Date.now();
+      else delete pickTimes[name];
+      picks = Object.keys(pickTimes).sort((a,b)=>pickTimes[a]-pickTimes[b]);
+      containerEl.querySelectorAll('label').forEach(lbl => colorClasses.forEach(c=>lbl.classList.remove(c)));
       const style = styleEl.value;
       if (style === 'Doubles' || style === 'Mixed doubles') {
         picks.forEach((player, idx) => {
-          const cls = colorClasses[Math.floor(idx / 2) % colorClasses.length];
+          const cls = colorClasses[Math.floor(idx/2)%colorClasses.length];
           const lbl = containerEl.querySelector(`input[value="${player}"]`).parentElement;
           lbl.classList.add(cls);
         });
@@ -225,8 +193,7 @@
     });
 
     styleEl.addEventListener('change', () => {
-      pickTimes = {};
-      picks = [];
+      pickTimes = {}; picks = [];
       loadPlayers();
     });
 
@@ -234,16 +201,16 @@
       e.preventDefault();
       showOverlay('Creating…');
       const style = styleEl.value;
-      // build players list with team numbers if needed
-      const outPlayers = picks.map((player, idx) => {
-        if (style === 'Doubles' || style === 'Mixed doubles') {
-          const teamNum = Math.floor(idx / 2) + 1;
+      const outPlayers = picks.map((player,idx)=>{
+        if (style==='Doubles'||style==='Mixed doubles'){
+          const teamNum=Math.floor(idx/2)+1;
           return `${player}(${teamNum})`;
         }
         return player;
       });
       const data = {
         name:      document.getElementById('tName').value.trim(),
+        code:      document.getElementById('tCode').value.trim(),
         style,
         startDate: document.getElementById('startDate').value,
         endDate:   document.getElementById('endDate').value,
@@ -256,6 +223,7 @@
         `startDate=${encodeURIComponent(data.startDate)}`,
         `endDate=${encodeURIComponent(data.endDate)}`,
         `players=${encodeURIComponent(data.players)}`,
+        `code=${encodeURIComponent(data.code)}`,
         `callback=handleAdd`
       ].join('&');
       const script = document.createElement('script');
@@ -266,10 +234,10 @@
     function handleAdd(resp) {
       if (resp.status === 'success') {
         showOverlay('Tournament created!');
-        setTimeout(() => window.location.href = 'adminhomepage.html', 2000);
+        setTimeout(()=>window.location.href='adminhomepage.html',2000);
       } else {
         showOverlay('Error. Try again.');
-        setTimeout(() => hideOverlay(), 2000);
+        setTimeout(()=>hideOverlay(),2000);
       }
     }
 
