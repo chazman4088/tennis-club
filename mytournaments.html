@@ -30,7 +30,13 @@
       max-width: 800px; width: 100%; margin: 0 auto;
     }
     .container h1 {
-      font-size: 2.5rem; margin-bottom: 1.5rem; text-align: center;
+      font-size: 2.5rem; margin-bottom: 1rem; text-align: center;
+    }
+    /* join button */
+    #joinBtn {
+      display: block;
+      margin: 0 auto 2rem;
+      width: 200px;
     }
     .tournament-list {
       display: grid;
@@ -61,9 +67,7 @@
       transition: transform .1s ease; margin-top: .5rem;
       width: 100%;
     }
-    .btn-tennis:hover {
-      transform: scale(1.02);
-    }
+    .btn-tennis:hover { transform: scale(1.02); }
     .footer {
       text-align: center; padding: 1rem 0;
       background: rgba(255,255,255,0.8);
@@ -93,15 +97,11 @@
     .details-box h4 {
       margin-top: 1rem; margin-bottom: .5rem; font-size: 1.1rem;
     }
-    .details-box p {
-      margin: .5rem 0;
-    }
+    .details-box p { margin: .5rem 0; }
     .details-box ul {
       list-style: none; padding: 0; margin: .5rem 0;
     }
-    .details-box li {
-      margin: .25rem 0;
-    }
+    .details-box li { margin: .25rem 0; }
     .details-box table {
       width: 100%; border-collapse: collapse; margin-top: .5rem;
     }
@@ -119,29 +119,14 @@
       border: 1px solid #2E7D32; border-radius: 4px; background: #fff;
       width: 100%;
     }
-
-    /* —— Responsive Adjustments —— */
     @media (max-width: 600px) {
-      .container {
-        padding: 1rem;
-        margin-top: 3rem;
-      }
-      .container h1 {
-        font-size: 2rem;
-      }
-      .tournament-list {
-        grid-template-columns: 1fr;
-      }
-      .btn-tennis {
-        font-size: .85rem;
-      }
-      .details-box {
-        padding: 1rem;
-        max-width: 95%;
-      }
-      .details-box table {
-        font-size: .85rem;
-      }
+      .container { padding: 1rem; margin-top: 3rem; }
+      .container h1 { font-size: 2rem; }
+      .tournament-list { grid-template-columns: 1fr; }
+      #joinBtn { width: 100%; }
+      .btn-tennis { font-size: .85rem; }
+      .details-box { padding: 1rem; max-width: 95%; }
+      .details-box table { font-size: .85rem; }
     }
   </style>
 </head>
@@ -152,6 +137,7 @@
 
   <div class="container">
     <h1>My Tournaments</h1>
+    <button id="joinBtn" class="btn-tennis">Join Tournament</button>
     <div class="tournament-list" id="tourneyList">
       <div class="empty">Loading tournaments…</div>
     </div>
@@ -195,6 +181,26 @@
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbxeVvMwdPrmJNQLMG7ye2kUhOnxCCHB2rWgPGKyXtDSKQ4h78YjAaelygH8ApYyDzZ4/exec';
     let myTours = [], currentTour = '', currentStyle = '', currentPlayers = [];
 
+    document.getElementById('joinBtn').addEventListener('click', () => {
+      const code = prompt('Enter 4-digit tournament code:');
+      if (!code) return;
+      const script = document.createElement('script');
+      script.src = `${GAS_URL}?action=joinTournament`
+                 + `&code=${encodeURIComponent(code)}`
+                 + `&player=${encodeURIComponent(name)}`
+                 + `&callback=handleJoin`;
+      document.body.appendChild(script);
+    });
+
+    function handleJoin(resp) {
+      if (resp.status === 'success') {
+        alert('Joined successfully!');
+        loadTournaments();
+      } else {
+        alert(resp.error || 'Invalid code.');
+      }
+    }
+
     function loadTournaments() {
       const s = document.createElement('script');
       s.src = `${GAS_URL}?action=gettournaments&callback=handleTours`;
@@ -213,38 +219,32 @@
         listEl.innerHTML = '<div class="empty">No tournaments to display.</div>';
         return;
       }
-      mine.forEach((t,i) => {
+      mine.forEach((t, i) => {
         const card = document.createElement('div');
         card.className = 'tournament-card';
-
-        const h2     = document.createElement('h2');
-        h2.textContent = t.name;
-        const pStyle = document.createElement('p');
-        pStyle.textContent = `Style: ${t.style}`;
-        const pDates = document.createElement('p');
-        pDates.textContent = `Dates: ${t.startDate} – ${t.endDate}`;
-
+        const h2 = document.createElement('h2'); h2.textContent = t.name;
+        const p1 = document.createElement('p'); p1.textContent = `Style: ${t.style}`;
+        const p2 = document.createElement('p'); p2.textContent = `Dates: ${t.startDate} – ${t.endDate}`;
         const btn = document.createElement('button');
-        btn.textContent = 'View Details';
-        btn.className = 'btn-tennis';
+        btn.className = 'btn-tennis'; btn.textContent = 'View Details';
         btn.addEventListener('click', () => showDetails(i));
-
-        card.append(h2, pStyle, pDates, btn);
+        card.append(h2, p1, p2, btn);
         listEl.append(card);
       });
     }
 
     function showDetails(idx) {
       const t = myTours[idx];
-      currentTour    = t.name;
-      currentStyle  = t.style.toLowerCase();
-      currentPlayers = t.players.split(',').map(p=>p.trim());
+      currentTour = t.name;
+      currentStyle = t.style.toLowerCase();
+      currentPlayers = t.players.split(',').map(p => p.trim());
       const d = document.getElementById('detailsContent');
       d.innerHTML = `
         <p><strong>Name:</strong> ${t.name}</p>
         <p><strong>Style:</strong> ${t.style}</p>
         <p><strong>Start:</strong> ${t.startDate}</p>
         <p><strong>End:</strong> ${t.endDate}</p>
+        <p><strong>Players:</strong></p>
         <ul>${currentPlayers.map(p=>`<li>${p}</li>`).join('')}</ul>
       `;
       loadLeaderboard(t.name);
@@ -261,18 +261,17 @@
     function handleBoard(resp) {
       let board = resp.board || [];
       if (currentStyle.includes('ladder')) {
-        board.sort((a,b) => (parseInt(a.position)||Infinity) - (parseInt(b.position)||Infinity));
+        board.sort((a,b)=>(parseInt(a.position)||Infinity)-(parseInt(b.position)||Infinity));
       } else if (currentStyle.includes('league')) {
-        board.sort((a,b) => (parseInt(b.points)||0) - (parseInt(a.points)||0));
+        board.sort((a,b)=>(parseInt(b.points)||0)-(parseInt(a.points)||0));
       }
       const c = document.getElementById('leaderboardContent');
-      if (!board.length) {
-        c.innerHTML = '<div class="empty">No data.</div>';
-      } else {
+      if (!board.length) c.innerHTML = '<div class="empty">No data.</div>';
+      else {
         let html = '<table><thead><tr>'
                  + '<th>#</th><th>Name</th><th>Pts</th><th>W</th><th>L</th>'
                  + '</tr></thead><tbody>';
-        board.forEach((r,i) => {
+        board.forEach((r,i)=>{
           html += `<tr>
             <td>${r.position||i+1}</td>
             <td>${r.participant}</td>
@@ -297,37 +296,34 @@
         for (let i=0; i<currentPlayers.length; i+=2) {
           opts.push(`${currentPlayers[i]} & ${currentPlayers[i+1]||''}`);
         }
-      } else {
-        opts = currentPlayers;
-      }
-      opts.forEach(n => {
+      } else opts = currentPlayers;
+      opts.forEach(n=>{
         win.add(new Option(n,n));
         los.add(new Option(n,n));
       });
     }
 
-    document.getElementById('scoreForm').addEventListener('submit', e => {
+    document.getElementById('scoreForm').addEventListener('submit', e=>{
       e.preventDefault();
-      const w = document.getElementById('winnerSelect').value,
-            l = document.getElementById('loserSelect').value;
-      const s = document.createElement('script');
-      s.src = `${GAS_URL}?action=submitresult`
-            + `&name=${encodeURIComponent(currentTour)}`
-            + `&winner=${encodeURIComponent(w)}`
-            + `&loser=${encodeURIComponent(l)}`
-            + `&callback=handleSubmit`;
+      const w=document.getElementById('winnerSelect').value,
+            l=document.getElementById('loserSelect').value;
+      const s=document.createElement('script');
+      s.src=`${GAS_URL}?action=submitresult`
+         +`&name=${encodeURIComponent(currentTour)}`
+         +`&winner=${encodeURIComponent(w)}`
+         +`&loser=${encodeURIComponent(l)}`
+         +`&callback=handleSubmit`;
       document.body.appendChild(s);
     });
 
     function handleSubmit(resp) {
-      if (resp.status==='success') loadLeaderboard(currentTour);
+      if(resp.status==='success') loadLeaderboard(currentTour);
       else alert('Error submitting result.');
     }
 
-    document.getElementById('closeDetails')
-      .addEventListener('click', () => {
-        document.getElementById('detailsOverlay').classList.remove('active');
-      });
+    document.getElementById('closeDetails').addEventListener('click',()=>{
+      document.getElementById('detailsOverlay').classList.remove('active');
+    });
 
     loadTournaments();
   </script>
