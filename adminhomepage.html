@@ -184,7 +184,7 @@
   <script>
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbxeVvMwdPrmJNQLMG7ye2kUhOnxCCHB2rWgPGKyXtDSKQ4h78YjAaelygH8ApYyDzZ4/exec';
 
-    // 1) try URL param
+    // pick up admin name
     const params = new URLSearchParams(window.location.search);
     let adminName = params.get('name');
     if (!adminName) adminName = sessionStorage.getItem('username');
@@ -193,14 +193,17 @@
     document.getElementById('signedInAs').textContent = adminName;
     document.getElementById('welcomeName').textContent = adminName;
 
-    let tournaments = [];
-    let currentTour = '';
-    let currentStyle = '';
+    let tournaments = [], currentTour = '', currentStyle = '';
+
+    function formatDate(dt) {
+      // strip time portion, show only YYYY-MM-DD
+      return String(dt).split('T')[0];
+    }
 
     function loadTournaments() {
-      const script = document.createElement('script');
-      script.src = `${GAS_URL}?action=gettournaments&callback=handleTours`;
-      document.body.appendChild(script);
+      const s = document.createElement('script');
+      s.src = `${GAS_URL}?action=gettournaments&callback=handleTours`;
+      document.body.appendChild(s);
     }
 
     function handleTours(resp) {
@@ -211,7 +214,7 @@
         listEl.textContent = 'No tournaments.';
         return;
       }
-      tournaments.forEach((t, i) => {
+      tournaments.forEach((t,i) => {
         const item = document.createElement('div');
         item.className = 'tourney-item';
         const title = document.createElement('strong');
@@ -236,15 +239,20 @@
       currentTour = t.name;
       currentStyle = t.style.toLowerCase();
       const c = document.getElementById('detailsContent');
-      const players = t.players.split(',').map(p => {
-        const trimmed = p.trim();
-        return `<li>${trimmed}<button class="btn-tennis" onclick="removePlayer('${trimmed.replace(/'/g,'\\\'')}')">Remove</button></li>`;
-      }).join('');
+
+      const start = formatDate(t.startDate);
+      const end   = formatDate(t.endDate);
+
+      const players = t.players.split(',')
+        .map(p => p.trim())
+        .map(p => `<li>${p}<button class="btn-tennis" onclick="removePlayer('${p.replace(/'/g,'\\\'')}')">Remove</button></li>`)
+        .join('');
+
       c.innerHTML = `
         <p><strong>Name:</strong> ${t.name}</p>
         <p><strong>Style:</strong> ${t.style}</p>
-        <p><strong>Start:</strong> ${t.startDate}</p>
-        <p><strong>End:</strong> ${t.endDate}</p>
+        <p><strong>Start:</strong> ${start}</p>
+        <p><strong>End:</strong> ${end}</p>
         <p><strong>Players:</strong></p>
         <ul>${players}</ul>
       `;
@@ -252,19 +260,33 @@
       document.getElementById('detailsOverlay').classList.add('active');
     }
 
+    function deleteTournament(idx) {
+      const s = document.createElement('script');
+      s.src = `${GAS_URL}?action=deleteTournament&name=${encodeURIComponent(tournaments[idx].name)}&callback=handleDelete`;
+      document.body.appendChild(s);
+    }
+
+    function handleDelete(resp) {
+      if (resp.status==='success') {
+        loadTournaments();
+        document.getElementById('detailsOverlay').classList.remove('active');
+      } else {
+        alert('Error deleting tournament.');
+      }
+    }
+
     function loadLeaderboard(name) {
-      document.getElementById('leaderboardContent').textContent = 'Loading…';
-      const script = document.createElement('script');
-      script.src = `${GAS_URL}?action=getleaderboard&name=${encodeURIComponent(name)}&callback=handleBoard`;
-      document.body.appendChild(script);
+      const s = document.createElement('script');
+      s.src = `${GAS_URL}?action=getleaderboard&name=${encodeURIComponent(name)}&callback=handleBoard`;
+      document.body.appendChild(s);
     }
 
     function handleBoard(resp) {
       let board = resp.board || [];
       if (currentStyle.includes('ladder')) {
-        board.sort((a, b) => Number(a.position) - Number(b.position));
+        board.sort((a,b) => Number(a.position) - Number(b.position));
       } else if (currentStyle.includes('league')) {
-        board.sort((a, b) => Number(b.points) - Number(a.points));
+        board.sort((a,b) => Number(b.points) - Number(a.points));
       }
       const container = document.getElementById('leaderboardContent');
       if (!board.length) {
@@ -273,9 +295,9 @@
         let html = '<table><thead><tr>'
                  + '<th>#</th><th>Name</th><th>Pts</th><th>W</th><th>L</th>'
                  + '</tr></thead><tbody>';
-        board.forEach((r, i) => {
+        board.forEach((r,i) => {
           html += `<tr>
-            <td>${r.position || i + 1}</td>
+            <td>${r.position||i+1}</td>
             <td>${r.participant}</td>
             <td>${r.points}</td>
             <td>${r.wins}</td>
@@ -287,36 +309,17 @@
       }
     }
 
-    function deleteTournament(idx) {
-      const name = tournaments[idx].name;
-      const script = document.createElement('script');
-      script.src = `${GAS_URL}?action=deleteTournament&name=${encodeURIComponent(name)}&callback=handleDelete`;
-      document.body.appendChild(script);
-    }
-
-    function handleDelete(resp) {
-      if (resp.status === 'success') {
-        loadTournaments();
-        document.getElementById('detailsOverlay').classList.remove('active');
-      } else {
-        alert('Error deleting tournament.');
-      }
-    }
-
     function removePlayer(player) {
-      const script = document.createElement('script');
-      script.src = `${GAS_URL}?action=removePlayer`
-                 + `&name=${encodeURIComponent(currentTour)}`
-                 + `&player=${encodeURIComponent(player)}`
-                 + `&callback=handleRemove`;
-      document.body.appendChild(script);
+      const s = document.createElement('script');
+      s.src = `${GAS_URL}?action=removePlayer&name=${encodeURIComponent(currentTour)}&player=${encodeURIComponent(player)}&callback=handleRemove`;
+      document.body.appendChild(s);
     }
 
     function handleRemove(resp) {
-      if (resp.status === 'success') {
-        showDetails(tournaments.findIndex(t => t.name === currentTour));
+      if (resp.status==='success') {
+        showDetails(tournaments.findIndex(t=>t.name===currentTour));
       } else {
-        alert(resp.error || 'Error removing player.');
+        alert(resp.error||'Error removing player.');
       }
     }
 
