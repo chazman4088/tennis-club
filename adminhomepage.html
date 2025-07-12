@@ -184,6 +184,7 @@
   <script>
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbxeVvMwdPrmJNQLMG7ye2kUhOnxCCHB2rWgPGKyXtDSKQ4h78YjAaelygH8ApYyDzZ4/exec';
 
+    // 1) try URL param
     const params = new URLSearchParams(window.location.search);
     let adminName = params.get('name');
     if (!adminName) adminName = sessionStorage.getItem('username');
