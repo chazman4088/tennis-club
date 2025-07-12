@@ -145,7 +145,7 @@
 </head>
 <body>
   <div class="header">
-    Logged in as <span id="signedInAs">Admin</span> (Admin)
+    Logged in as <span id="signedInAs"></span> (Admin)
   </div>
 
   <div class="layout">
@@ -155,7 +155,7 @@
     </div>
 
     <div class="container">
-      <h1>Welcome, <span id="welcomeName">Admin</span>!</h1>
+      <h1>Welcome, <span id="welcomeName"></span>!</h1>
       <a href="mytournaments.html" class="btn-tennis">My tournaments</a>
     </div>
 
@@ -179,7 +179,20 @@
   <script>
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbxeVvMwdPrmJNQLMG7ye2kUhOnxCCHB2rWgPGKyXtDSKQ4h78YjAaelygH8ApYyDzZ4/exec';
 
-    const adminName = sessionStorage.getItem('username') || 'Admin';
+    // 1) try URL param
+    const params = new URLSearchParams(window.location.search);
+    let adminName = params.get('name');
+
+    // 2) fallback to sessionStorage
+    if (!adminName) {
+      adminName = sessionStorage.getItem('username');
+    }
+
+    // 3) default
+    if (!adminName) {
+      adminName = 'Admin';
+    }
+
     document.getElementById('signedInAs').textContent = adminName;
     document.getElementById('welcomeName').textContent = adminName;
 
@@ -240,4 +253,83 @@
         <p><strong>Players:</strong></p>
         <ul>${players}</ul>
       `;
-      loadLeaderboard
+      loadLeaderboard(t.name);
+      document.getElementById('detailsOverlay').classList.add('active');
+    }
+
+    function loadLeaderboard(name) {
+      document.getElementById('leaderboardContent').textContent = 'Loading…';
+      const script = document.createElement('script');
+      script.src = `${GAS_URL}?action=getleaderboard&name=${encodeURIComponent(name)}&callback=handleBoard`;
+      document.body.appendChild(script);
+    }
+
+    function handleBoard(resp) {
+      let board = resp.board || [];
+      if (currentStyle.includes('ladder')) {
+        board.sort((a,b) => Number(a.position) - Number(b.position));
+      } else if (currentStyle.includes('league')) {
+        board.sort((a,b) => Number(b.points) - Number(a.points));
+      }
+      const container = document.getElementById('leaderboardContent');
+      if (!board.length) {
+        container.innerHTML = '<div class="empty">No data.</div>';
+      } else {
+        let html = '<table><thead><tr>'
+                 + '<th>#</th><th>Name</th><th>Pts</th><th>W</th><th>L</th>'
+                 + '</tr></thead><tbody>';
+        board.forEach((r, i) => {
+          html += `<tr>
+            <td>${r.position || i+1}</td>
+            <td>${r.participant}</td>
+            <td>${r.points}</td>
+            <td>${r.wins}</td>
+            <td>${r.losses}</td>
+          </tr>`;
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+      }
+    }
+
+    function deleteTournament(idx) {
+      const name = tournaments[idx].name;
+      const script = document.createElement('script');
+      script.src = `${GAS_URL}?action=deleteTournament&name=${encodeURIComponent(name)}&callback=handleDelete`;
+      document.body.appendChild(script);
+    }
+
+    function handleDelete(resp) {
+      if (resp.status === 'success') {
+        loadTournaments();
+        document.getElementById('detailsOverlay').classList.remove('active');
+      } else {
+        alert('Error deleting tournament.');
+      }
+    }
+
+    function removePlayer(player) {
+      const script = document.createElement('script');
+      script.src = `${GAS_URL}?action=removePlayer`
+                 + `&name=${encodeURIComponent(currentTour)}`
+                 + `&player=${encodeURIComponent(player)}`
+                 + `&callback=handleRemove`;
+      document.body.appendChild(script);
+    }
+
+    function handleRemove(resp) {
+      if (resp.status === 'success') {
+        showDetails(tournaments.findIndex(t => t.name === currentTour));
+      } else {
+        alert(resp.error || 'Error removing player.');
+      }
+    }
+
+    document.getElementById('closeDetails').addEventListener('click', () => {
+      document.getElementById('detailsOverlay').classList.remove('active');
+    });
+
+    loadTournaments();
+  </script>
+</body>
+</html>
