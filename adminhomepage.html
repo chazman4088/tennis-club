@@ -113,11 +113,11 @@
       margin: .25rem 0;
       display: flex; justify-content: space-between; align-items: center;
     }
-    /* smaller remove-buttons */
+    /* shrink Remove button */
     .details-box li button {
-      font-size: .7rem;
-      padding: .2rem .4rem;
-      border-radius: 4px;
+      font-size: .6rem;
+      padding: .15rem .3rem;
+      border-radius: 3px;
     }
     .details-box table {
       width: 100%; border-collapse: collapse; margin-top: .5rem;
@@ -286,54 +286,4 @@
           html += `<tr>
             <td>${r.position || i + 1}</td>
             <td>${r.participant}</td>
-            <td>${r.points}</td>
-            <td>${r.wins}</td>
-            <td>${r.losses}</td>
-          </tr>`;
-        });
-        html += '</tbody></table>';
-        container.innerHTML = html;
-      }
-    }
-
-    function deleteTournament(idx) {
-      const name = tournaments[idx].name;
-      const script = document.createElement('script');
-      script.src = `${GAS_URL}?action=deleteTournament&name=${encodeURIComponent(name)}&callback=handleDelete`;
-      document.body.appendChild(script);
-    }
-
-    function handleDelete(resp) {
-      if (resp.status === 'success') {
-        loadTournaments();
-        document.getElementById('detailsOverlay').classList.remove('active');
-      } else {
-        alert('Error deleting tournament.');
-      }
-    }
-
-    function removePlayer(player) {
-      const script = document.createElement('script');
-      script.src = `${GAS_URL}?action=removePlayer`
-                 + `&name=${encodeURIComponent(currentTour)}`
-                 + `&player=${encodeURIComponent(player)}`
-                 + `&callback=handleRemove`;
-      document.body.appendChild(script);
-    }
-
-    function handleRemove(resp) {
-      if (resp.status === 'success') {
-        showDetails(tournaments.findIndex(t => t.name === currentTour));
-      } else {
-        alert(resp.error || 'Error removing player.');
-      }
-    }
-
-    document.getElementById('closeDetails').addEventListener('click', () => {
-      document.getElementById('detailsOverlay').classList.remove('active');
-    });
-
-    loadTournaments();
-  </script>
-</body>
-</html>
+            <td>${r.points}</
