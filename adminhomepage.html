@@ -118,6 +118,7 @@
       font-size: .6rem;
       padding: .15rem .3rem;
       border-radius: 3px;
+      width: auto !important;
     }
     .details-box table {
       width: 100%; border-collapse: collapse; margin-top: .5rem;
@@ -183,19 +184,10 @@
   <script>
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbxeVvMwdPrmJNQLMG7ye2kUhOnxCCHB2rWgPGKyXtDSKQ4h78YjAaelygH8ApYyDzZ4/exec';
 
-    // 1) try URL param
     const params = new URLSearchParams(window.location.search);
     let adminName = params.get('name');
-
-    // 2) fallback to sessionStorage
-    if (!adminName) {
-      adminName = sessionStorage.getItem('username');
-    }
-
-    // 3) default
-    if (!adminName) {
-      adminName = 'Admin';
-    }
+    if (!adminName) adminName = sessionStorage.getItem('username');
+    if (!adminName) adminName = 'Admin';
 
     document.getElementById('signedInAs').textContent = adminName;
     document.getElementById('welcomeName').textContent = adminName;
@@ -243,12 +235,10 @@
       currentTour = t.name;
       currentStyle = t.style.toLowerCase();
       const c = document.getElementById('detailsContent');
-
       const players = t.players.split(',').map(p => {
         const trimmed = p.trim();
         return `<li>${trimmed}<button class="btn-tennis" onclick="removePlayer('${trimmed.replace(/'/g,'\\\'')}')">Remove</button></li>`;
       }).join('');
-
       c.innerHTML = `
         <p><strong>Name:</strong> ${t.name}</p>
         <p><strong>Style:</strong> ${t.style}</p>
