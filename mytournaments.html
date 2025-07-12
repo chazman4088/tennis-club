@@ -201,6 +201,10 @@
       }
     }
 
+    function formatDate(dateStr) {
+      return dateStr.split('T')[0];
+    }
+
     function loadTournaments() {
       const s = document.createElement('script');
       s.src = `${GAS_URL}?action=gettournaments&callback=handleTours`;
@@ -224,7 +228,10 @@
         card.className = 'tournament-card';
         const h2 = document.createElement('h2'); h2.textContent = t.name;
         const p1 = document.createElement('p'); p1.textContent = `Style: ${t.style}`;
-        const p2 = document.createElement('p'); p2.textContent = `Dates: ${t.startDate} – ${t.endDate}`;
+        const start = formatDate(t.startDate);
+        const end   = formatDate(t.endDate);
+        const p2 = document.createElement('p'); 
+        p2.textContent = `Dates: ${start} – ${end}`;
         const btn = document.createElement('button');
         btn.className = 'btn-tennis'; btn.textContent = 'View Details';
         btn.addEventListener('click', () => showDetails(i));
@@ -239,11 +246,13 @@
       currentStyle = t.style.toLowerCase();
       currentPlayers = t.players.split(',').map(p => p.trim());
       const d = document.getElementById('detailsContent');
+      const start = formatDate(t.startDate);
+      const end   = formatDate(t.endDate);
       d.innerHTML = `
         <p><strong>Name:</strong> ${t.name}</p>
         <p><strong>Style:</strong> ${t.style}</p>
-        <p><strong>Start:</strong> ${t.startDate}</p>
-        <p><strong>End:</strong> ${t.endDate}</p>
+        <p><strong>Start:</strong> ${start}</p>
+        <p><strong>End:</strong> ${end}</p>
         <p><strong>Players:</strong></p>
         <ul>${currentPlayers.map(p=>`<li>${p}</li>`).join('')}</ul>
       `;
@@ -271,7 +280,7 @@
         let html = '<table><thead><tr>'
                  + '<th>#</th><th>Name</th><th>Pts</th><th>W</th><th>L</th>'
                  + '</tr></thead><tbody>';
-        board.forEach((r,i)=>{
+        board.forEach((r,i)=>{ 
           html += `<tr>
             <td>${r.position||i+1}</td>
             <td>${r.participant}</td>
@@ -305,25 +314,26 @@
 
     document.getElementById('scoreForm').addEventListener('submit', e=>{
       e.preventDefault();
-      const w=document.getElementById('winnerSelect').value,
-            l=document.getElementById('loserSelect').value;
-      const s=document.createElement('script');
-      s.src=`${GAS_URL}?action=submitresult`
-         +`&name=${encodeURIComponent(currentTour)}`
-         +`&winner=${encodeURIComponent(w)}`
-         +`&loser=${encodeURIComponent(l)}`
-         +`&callback=handleSubmit`;
+      const w = document.getElementById('winnerSelect').value,
+            l = document.getElementById('loserSelect').value;
+      const s = document.createElement('script');
+      s.src = `${GAS_URL}?action=submitresult`
+            + `&name=${encodeURIComponent(currentTour)}`
+            + `&winner=${encodeURIComponent(w)}`
+            + `&loser=${encodeURIComponent(l)}`
+            + `&callback=handleSubmit`;
       document.body.appendChild(s);
     });
 
     function handleSubmit(resp) {
-      if(resp.status==='success') loadLeaderboard(currentTour);
+      if (resp.status==='success') loadLeaderboard(currentTour);
       else alert('Error submitting result.');
     }
 
-    document.getElementById('closeDetails').addEventListener('click',()=>{
-      document.getElementById('detailsOverlay').classList.remove('active');
-    });
+    document.getElementById('closeDetails')
+      .addEventListener('click', () => {
+        document.getElementById('detailsOverlay').classList.remove('active');
+      });
 
     loadTournaments();
   </script>
