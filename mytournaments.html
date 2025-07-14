@@ -64,7 +64,10 @@
       transition: transform .1s ease; margin-top: .5rem;
       width: 100%;
     }
-    .btn-tennis:hover { transform: scale(1.02); }
+    .btn-tennis:disabled {
+      background: #ddd; color: #999; cursor: default;
+    }
+    .btn-tennis:hover:not(:disabled) { transform: scale(1.02); }
     .footer {
       text-align: center; padding: 1rem 0;
       background: rgba(255,255,255,0.8);
@@ -333,6 +336,10 @@
     }
 
     document.getElementById('submitSetsBtn').addEventListener('click', () => {
+      const btn = document.getElementById('submitSetsBtn');
+      btn.textContent = 'Submitting...';
+      btn.disabled = true;
+
       const winner = encodeURIComponent(document.getElementById('winnerSelect').value);
       const loser  = encodeURIComponent(document.getElementById('loserSelect').value);
       const sets = [];
@@ -343,6 +350,8 @@
       }
       if (!winner || !loser || sets.length === 0) {
         alert('Choose players and enter at least one set.');
+        btn.textContent = 'Submit Sets';
+        btn.disabled = false;
         return;
       }
       const s = document.createElement('script');
@@ -356,12 +365,15 @@
     });
 
     function handleSets(resp) {
+      const btn = document.getElementById('submitSetsBtn');
       if (resp.status === 'success') {
         alert(`Recorded ${resp.winnerSets}-${resp.loserSets} sets`);
         loadLeaderboard(currentTour);
       } else {
         alert(resp.error || 'Error recording sets.');
       }
+      btn.textContent = 'Submit Sets';
+      btn.disabled = false;
     }
 
     document.getElementById('closeDetails').addEventListener('click', () => {
