@@ -32,11 +32,8 @@
     .container h1 {
       font-size: 2.5rem; margin-bottom: 1rem; text-align: center;
     }
-    /* join button */
     #joinBtn {
-      display: block;
-      margin: 0 auto 2rem;
-      width: 200px;
+      display: block; margin: 0 auto 2rem; width: 200px;
     }
     .tournament-list {
       display: grid;
@@ -108,17 +105,29 @@
     .details-box th, .details-box td {
       border: 1px solid #ccc; padding: .5rem; text-align: center;
     }
-    .details-box form {
-      display: flex; flex-direction: column; gap: .5rem; margin-top: .5rem;
+
+    /* score form grid */
+    #scoreForm {
+      margin-top: 1rem;
     }
-    .details-box label {
-      font-size: .95rem; margin-top: .5rem;
+    #scoreGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .5rem .5rem;
+      align-items: center;
+      margin-top: .5rem;
     }
-    .details-box select {
-      padding: .5rem; font-size: 1rem;
-      border: 1px solid #2E7D32; border-radius: 4px; background: #fff;
-      width: 100%;
+    #scoreGrid .header-cell {
+      font-weight: 600; text-align: center;
     }
+    #scoreGrid .score-cell {
+      text-align: center;
+    }
+    #scoreGrid input {
+      width: 60px; padding: .25rem; text-align: center;
+      border: 1px solid #2E7D32; border-radius: 4px;
+    }
+
     @media (max-width: 600px) {
       .container { padding: 1rem; margin-top: 3rem; }
       .container h1 { font-size: 2rem; }
@@ -127,6 +136,7 @@
       .btn-tennis { font-size: .85rem; }
       .details-box { padding: 1rem; max-width: 95%; }
       .details-box table { font-size: .85rem; }
+      #scoreGrid input { width: 45px; }
     }
   </style>
 </head>
@@ -167,7 +177,43 @@
           <option value="" disabled selected>Select loser</option>
         </select>
 
-        <button type="submit" class="btn-tennis">Submit</button>
+        <div id="scoreGrid">
+          <div class="header-cell" id="winnerHeader"></div>
+          <div class="header-cell" id="loserHeader"></div>
+          <!-- five sets -->
+          <div class="score-cell">
+            <input type="number" id="set1W" min="0" placeholder="–"/>
+          </div>
+          <div class="score-cell">
+            <input type="number" id="set1L" min="0" placeholder="–"/>
+          </div>
+          <div class="score-cell">
+            <input type="number" id="set2W" min="0" placeholder="–"/>
+          </div>
+          <div class="score-cell">
+            <input type="number" id="set2L" min="0" placeholder="–"/>
+          </div>
+          <div class="score-cell">
+            <input type="number" id="set3W" min="0" placeholder="–"/>
+          </div>
+          <div class="score-cell">
+            <input type="number" id="set3L" min="0" placeholder="–"/>
+          </div>
+          <div class="score-cell">
+            <input type="number" id="set4W" min="0" placeholder="–"/>
+          </div>
+          <div class="score-cell">
+            <input type="number" id="set4L" min="0" placeholder="–"/>
+          </div>
+          <div class="score-cell">
+            <input type="number" id="set5W" min="0" placeholder="–"/>
+          </div>
+          <div class="score-cell">
+            <input type="number" id="set5L" min="0" placeholder="–"/>
+          </div>
+        </div>
+
+        <button type="button" class="btn-tennis" id="submitSetsBtn">Submit Sets</button>
       </form>
 
       <button class="btn-tennis" id="closeDetails">Close</button>
@@ -230,7 +276,7 @@
         const p1 = document.createElement('p'); p1.textContent = `Style: ${t.style}`;
         const start = formatDate(t.startDate);
         const end   = formatDate(t.endDate);
-        const p2 = document.createElement('p'); 
+        const p2 = document.createElement('p');
         p2.textContent = `Dates: ${start} – ${end}`;
         const btn = document.createElement('button');
         btn.className = 'btn-tennis'; btn.textContent = 'View Details';
@@ -245,10 +291,11 @@
       currentTour = t.name;
       currentStyle = t.style.toLowerCase();
       currentPlayers = t.players.split(',').map(p => p.trim());
-      const d = document.getElementById('detailsContent');
+
       const start = formatDate(t.startDate);
       const end   = formatDate(t.endDate);
-      d.innerHTML = `
+
+      document.getElementById('detailsContent').innerHTML = `
         <p><strong>Name:</strong> ${t.name}</p>
         <p><strong>Style:</strong> ${t.style}</p>
         <p><strong>Start:</strong> ${start}</p>
@@ -256,9 +303,33 @@
         <p><strong>Players:</strong></p>
         <ul>${currentPlayers.map(p=>`<li>${p}</li>`).join('')}</ul>
       `;
+
       loadLeaderboard(t.name);
+      populateScoreForm();
       document.getElementById('detailsOverlay').classList.add('active');
     }
+
+    function populateScoreForm() {
+      const win = document.getElementById('winnerSelect'),
+            los = document.getElementById('loserSelect');
+      win.innerHTML = '<option value="" disabled selected>Select winner</option>';
+      los.innerHTML = '<option value="" disabled selected>Select loser</option>';
+      currentPlayers.forEach(p => {
+        const opt = new Option(p, p);
+        win.add(opt.cloneNode(true));
+        los.add(opt);
+      });
+      // update headers
+      document.getElementById('winnerHeader').textContent = win.value || 'Winner';
+      document.getElementById('loserHeader').textContent  = los.value || 'Loser';
+    }
+
+    document.getElementById('winnerSelect').addEventListener('change', () => {
+      document.getElementById('winnerHeader').textContent = document.getElementById('winnerSelect').value;
+    });
+    document.getElementById('loserSelect').addEventListener('change', () => {
+      document.getElementById('loserHeader').textContent = document.getElementById('loserSelect').value;
+    });
 
     function loadLeaderboard(name) {
       document.getElementById('leaderboardContent').textContent = 'Loading…';
@@ -278,56 +349,54 @@
       if (!board.length) c.innerHTML = '<div class="empty">No data.</div>';
       else {
         let html = '<table><thead><tr>'
-                 + '<th>#</th><th>Name</th><th>Pts</th><th>W</th><th>L</th>'
+                 + '<th>#</th><th>Name</th><th>Pts</th><th>W</th><th>L</th><th>Sets</th>'
                  + '</tr></thead><tbody>';
-        board.forEach((r,i)=>{ 
+        board.forEach((r,i)=>{
           html += `<tr>
             <td>${r.position||i+1}</td>
             <td>${r.participant}</td>
             <td>${r.points}</td>
             <td>${r.wins}</td>
             <td>${r.losses}</td>
+            <td>${r.setsWon||0}</td>
           </tr>`;
         });
         html += '</tbody></table>';
         c.innerHTML = html;
       }
-      populateScoreForm();
     }
 
-    function populateScoreForm() {
-      const win = document.getElementById('winnerSelect'),
-            los = document.getElementById('loserSelect');
-      win.innerHTML = '<option value="" disabled selected>Select winner</option>';
-      los.innerHTML = '<option value="" disabled selected>Select loser</option>';
-      let opts = [];
-      if (currentStyle.includes('doubles')) {
-        for (let i=0; i<currentPlayers.length; i+=2) {
-          opts.push(`${currentPlayers[i]} & ${currentPlayers[i+1]||''}`);
-        }
-      } else opts = currentPlayers;
-      opts.forEach(n=>{
-        win.add(new Option(n,n));
-        los.add(new Option(n,n));
-      });
-    }
-
-    document.getElementById('scoreForm').addEventListener('submit', e=>{
-      e.preventDefault();
-      const w = document.getElementById('winnerSelect').value,
-            l = document.getElementById('loserSelect').value;
+    document.getElementById('submitSetsBtn').addEventListener('click', () => {
+      const winner = encodeURIComponent(document.getElementById('winnerSelect').value);
+      const loser  = encodeURIComponent(document.getElementById('loserSelect').value);
+      // collect sets
+      const sets = [];
+      for (let i=1; i<=5; i++) {
+        const wv = document.getElementById('set'+i+'W').value;
+        const lv = document.getElementById('set'+i+'L').value;
+        if (wv && lv) sets.push(`${wv}-${lv}`);
+      }
+      if (!winner || !loser || sets.length===0) {
+        alert('Choose players and enter at least one set.');
+        return;
+      }
       const s = document.createElement('script');
-      s.src = `${GAS_URL}?action=submitresult`
+      s.src = `${GAS_URL}?action=submitSets`
             + `&name=${encodeURIComponent(currentTour)}`
-            + `&winner=${encodeURIComponent(w)}`
-            + `&loser=${encodeURIComponent(l)}`
-            + `&callback=handleSubmit`;
+            + `&winner=${winner}`
+            + `&loser=${loser}`
+            + `&sets=${encodeURIComponent(sets.join(' '))}`
+            + `&callback=handleSets`;
       document.body.appendChild(s);
     });
 
-    function handleSubmit(resp) {
-      if (resp.status==='success') loadLeaderboard(currentTour);
-      else alert('Error submitting result.');
+    function handleSets(resp) {
+      if (resp.status==='success') {
+        alert(`Recorded ${resp.winnerSets}‐${resp.loserSets} sets`);
+        loadLeaderboard(currentTour);
+      } else {
+        alert(resp.error||'Error recording sets.');
+      }
     }
 
     document.getElementById('closeDetails')
