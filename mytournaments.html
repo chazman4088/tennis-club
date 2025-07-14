@@ -178,39 +178,18 @@
         </select>
 
         <div id="scoreGrid">
-          <div class="header-cell" id="winnerHeader"></div>
-          <div class="header-cell" id="loserHeader"></div>
-          <!-- five sets -->
-          <div class="score-cell">
-            <input type="number" id="set1W" min="0" placeholder="–"/>
-          </div>
-          <div class="score-cell">
-            <input type="number" id="set1L" min="0" placeholder="–"/>
-          </div>
-          <div class="score-cell">
-            <input type="number" id="set2W" min="0" placeholder="–"/>
-          </div>
-          <div class="score-cell">
-            <input type="number" id="set2L" min="0" placeholder="–"/>
-          </div>
-          <div class="score-cell">
-            <input type="number" id="set3W" min="0" placeholder="–"/>
-          </div>
-          <div class="score-cell">
-            <input type="number" id="set3L" min="0" placeholder="–"/>
-          </div>
-          <div class="score-cell">
-            <input type="number" id="set4W" min="0" placeholder="–"/>
-          </div>
-          <div class="score-cell">
-            <input type="number" id="set4L" min="0" placeholder="–"/>
-          </div>
-          <div class="score-cell">
-            <input type="number" id="set5W" min="0" placeholder="–"/>
-          </div>
-          <div class="score-cell">
-            <input type="number" id="set5L" min="0" placeholder="–"/>
-          </div>
+          <div class="header-cell" id="winnerHeader">Winner</div>
+          <div class="header-cell" id="loserHeader">Loser</div>
+          <div class="score-cell"><input type="number" id="set1W" min="0"/></div>
+          <div class="score-cell"><input type="number" id="set1L" min="0"/></div>
+          <div class="score-cell"><input type="number" id="set2W" min="0"/></div>
+          <div class="score-cell"><input type="number" id="set2L" min="0"/></div>
+          <div class="score-cell"><input type="number" id="set3W" min="0"/></div>
+          <div class="score-cell"><input type="number" id="set3L" min="0"/></div>
+          <div class="score-cell"><input type="number" id="set4W" min="0"/></div>
+          <div class="score-cell"><input type="number" id="set4L" min="0"/></div>
+          <div class="score-cell"><input type="number" id="set5W" min="0"/></div>
+          <div class="score-cell"><input type="number" id="set5L" min="0"/></div>
         </div>
 
         <button type="button" class="btn-tennis" id="submitSetsBtn">Submit Sets</button>
@@ -230,21 +209,14 @@
     document.getElementById('joinBtn').addEventListener('click', () => {
       const code = prompt('Enter 4-digit tournament code:');
       if (!code) return;
-      const script = document.createElement('script');
-      script.src = `${GAS_URL}?action=joinTournament`
-                 + `&code=${encodeURIComponent(code)}`
-                 + `&player=${encodeURIComponent(name)}`
-                 + `&callback=handleJoin`;
-      document.body.appendChild(script);
+      const s = document.createElement('script');
+      s.src = `${GAS_URL}?action=joinTournament&code=${encodeURIComponent(code)}&player=${encodeURIComponent(name)}&callback=handleJoin`;
+      document.body.appendChild(s);
     });
 
     function handleJoin(resp) {
-      if (resp.status === 'success') {
-        alert('Joined successfully!');
-        loadTournaments();
-      } else {
-        alert(resp.error || 'Invalid code.');
-      }
+      if (resp.status === 'success') loadTournaments();
+      else alert(resp.error || 'Invalid code.');
     }
 
     function formatDate(dateStr) {
@@ -258,10 +230,8 @@
     }
 
     function handleTours(resp) {
-      const all  = resp.tournaments || [];
-      const mine = all.filter(t =>
-        t.players.split(',').some(p => p.trim().startsWith(name))
-      );
+      const all = resp.tournaments || [];
+      const mine = all.filter(t => t.players.split(',').some(p => p.trim().startsWith(name)));
       myTours = mine;
       const listEl = document.getElementById('tourneyList');
       listEl.innerHTML = '';
@@ -276,8 +246,7 @@
         const p1 = document.createElement('p'); p1.textContent = `Style: ${t.style}`;
         const start = formatDate(t.startDate);
         const end   = formatDate(t.endDate);
-        const p2 = document.createElement('p');
-        p2.textContent = `Dates: ${start} – ${end}`;
+        const p2 = document.createElement('p'); p2.textContent = `Dates: ${start} – ${end}`;
         const btn = document.createElement('button');
         btn.className = 'btn-tennis'; btn.textContent = 'View Details';
         btn.addEventListener('click', () => showDetails(i));
@@ -291,11 +260,10 @@
       currentTour = t.name;
       currentStyle = t.style.toLowerCase();
       currentPlayers = t.players.split(',').map(p => p.trim());
-
+      const d = document.getElementById('detailsContent');
       const start = formatDate(t.startDate);
       const end   = formatDate(t.endDate);
-
-      document.getElementById('detailsContent').innerHTML = `
+      d.innerHTML = `
         <p><strong>Name:</strong> ${t.name}</p>
         <p><strong>Style:</strong> ${t.style}</p>
         <p><strong>Start:</strong> ${start}</p>
@@ -303,7 +271,6 @@
         <p><strong>Players:</strong></p>
         <ul>${currentPlayers.map(p=>`<li>${p}</li>`).join('')}</ul>
       `;
-
       loadLeaderboard(t.name);
       populateScoreForm();
       document.getElementById('detailsOverlay').classList.add('active');
@@ -315,24 +282,22 @@
       win.innerHTML = '<option value="" disabled selected>Select winner</option>';
       los.innerHTML = '<option value="" disabled selected>Select loser</option>';
       currentPlayers.forEach(p => {
-        const opt = new Option(p, p);
-        win.add(opt.cloneNode(true));
-        los.add(opt);
+        const o = new Option(p,p);
+        win.add(o.cloneNode(true));
+        los.add(o);
       });
-      // update headers
-      document.getElementById('winnerHeader').textContent = win.value || 'Winner';
-      document.getElementById('loserHeader').textContent  = los.value || 'Loser';
+      document.getElementById('winnerHeader').textContent = 'Winner';
+      document.getElementById('loserHeader').textContent  = 'Loser';
     }
 
-    document.getElementById('winnerSelect').addEventListener('change', () => {
-      document.getElementById('winnerHeader').textContent = document.getElementById('winnerSelect').value;
+    document.getElementById('winnerSelect').addEventListener('change', e => {
+      document.getElementById('winnerHeader').textContent = e.target.value;
     });
-    document.getElementById('loserSelect').addEventListener('change', () => {
-      document.getElementById('loserHeader').textContent = document.getElementById('loserSelect').value;
+    document.getElementById('loserSelect').addEventListener('change', e => {
+      document.getElementById('loserHeader').textContent = e.target.value;
     });
 
     function loadLeaderboard(name) {
-      document.getElementById('leaderboardContent').textContent = 'Loading…';
       const s = document.createElement('script');
       s.src = `${GAS_URL}?action=getleaderboard&name=${encodeURIComponent(name)}&callback=handleBoard`;
       document.body.appendChild(s);
@@ -341,13 +306,14 @@
     function handleBoard(resp) {
       let board = resp.board || [];
       if (currentStyle.includes('ladder')) {
-        board.sort((a,b)=>(parseInt(a.position)||Infinity)-(parseInt(b.position)||Infinity));
+        board.sort((a,b)=>Number(a.position)-Number(b.position));
       } else if (currentStyle.includes('league')) {
-        board.sort((a,b)=>(parseInt(b.points)||0)-(parseInt(a.points)||0));
+        board.sort((a,b)=>Number(b.points)-Number(a.points));
       }
       const c = document.getElementById('leaderboardContent');
-      if (!board.length) c.innerHTML = '<div class="empty">No data.</div>';
-      else {
+      if (!board.length) {
+        c.innerHTML = '<div class="empty">No data.</div>';
+      } else {
         let html = '<table><thead><tr>'
                  + '<th>#</th><th>Name</th><th>Pts</th><th>W</th><th>L</th><th>Sets</th>'
                  + '</tr></thead><tbody>';
@@ -369,14 +335,13 @@
     document.getElementById('submitSetsBtn').addEventListener('click', () => {
       const winner = encodeURIComponent(document.getElementById('winnerSelect').value);
       const loser  = encodeURIComponent(document.getElementById('loserSelect').value);
-      // collect sets
       const sets = [];
       for (let i=1; i<=5; i++) {
         const wv = document.getElementById('set'+i+'W').value;
         const lv = document.getElementById('set'+i+'L').value;
         if (wv && lv) sets.push(`${wv}-${lv}`);
       }
-      if (!winner || !loser || sets.length===0) {
+      if (!winner || !loser || sets.length === 0) {
         alert('Choose players and enter at least one set.');
         return;
       }
@@ -391,18 +356,17 @@
     });
 
     function handleSets(resp) {
-      if (resp.status==='success') {
-        alert(`Recorded ${resp.winnerSets}‐${resp.loserSets} sets`);
+      if (resp.status === 'success') {
+        alert(`Recorded ${resp.winnerSets}-${resp.loserSets} sets`);
         loadLeaderboard(currentTour);
       } else {
-        alert(resp.error||'Error recording sets.');
+        alert(resp.error || 'Error recording sets.');
       }
     }
 
-    document.getElementById('closeDetails')
-      .addEventListener('click', () => {
-        document.getElementById('detailsOverlay').classList.remove('active');
-      });
+    document.getElementById('closeDetails').addEventListener('click', () => {
+      document.getElementById('detailsOverlay').classList.remove('active');
+    });
 
     loadTournaments();
   </script>
