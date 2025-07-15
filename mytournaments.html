@@ -163,7 +163,6 @@
     const name = sessionStorage.getItem('username') || 'Guest';
     document.getElementById('signedInAs').textContent = name;
 
-    // ← Correct, exact web-app URL
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbxeVvMwdPrmJNQLMG7ye2kUhOnxCCHB2rWgPGKyXtDSKQ4h78YjAaelygH8ApYyDzZ4/exec';
     let myTours = [], currentTour = '', currentStyle = '', currentPlayers = [];
 
@@ -213,8 +212,7 @@
         const p1 = document.createElement('p'); p1.textContent = `Style: ${t.style}`;
         const start = formatDate(t.startDate);
         const end   = formatDate(t.endDate);
-        const p2 = document.createElement('p'); p2.textContent = `Dates: ${start} – ${end}`;
-        const btn = document.createElement('button');
+        const p2 = document.createElement('p'); p2.textContent = `Dates: ${start} – ${end}`;        const btn = document.createElement('button');
         btn.className = 'btn-tennis'; btn.textContent = 'View Details';
         btn.addEventListener('click', () => showDetails(i));
         card.append(h2, p1, p2, btn);
@@ -249,11 +247,8 @@
       los.innerHTML = '<option value="" disabled selected>Select loser</option>';
 
       if (currentStyle.includes('doubles')) {
-        for (let i = 0; i < currentPlayers.length; i += 2) {
-          const team = `${currentPlayers[i]} & ${currentPlayers[i+1]||''}`;
-          win.add(new Option(team, team));
-          los.add(new Option(team, team));
-        }
+        // now overridden by handleBoard
+        // leave initial placeholders here
       } else {
         currentPlayers.forEach(p => {
           win.add(new Option(p,p));
@@ -278,13 +273,16 @@
 
     function handleBoard(resp) {
       let board = resp.board || [];
+
       if (currentStyle.includes('ladder')) {
         board.sort((a,b)=>Number(a.position)-Number(b.position));
       } else if (currentStyle.includes('league')) {
         board.sort((a,b)=>Number(b.points)-Number(a.points));
       }
+
       const isDoubles = currentStyle.includes('doubles');
       const c = document.getElementById('leaderboardContent');
+
       if (!board.length) {
         c.innerHTML = '<div class="empty">No data.</div>';
       } else {
@@ -308,6 +306,18 @@
         });
         html += '</tbody></table>';
         c.innerHTML = html;
+
+        // ---- NEW: populate selects from actual sheet participants ----
+        if (isDoubles) {
+          const win = document.getElementById('winnerSelect'),
+                los = document.getElementById('loserSelect');
+          win.innerHTML = '<option value="" disabled selected>Select winner</option>';
+          los.innerHTML = '<option value="" disabled selected>Select loser</option>';
+          board.forEach(r => {
+            win.add(new Option(r.participant, r.participant));
+            los.add(new Option(r.participant, r.participant));
+          });
+        }
       }
     }
 
@@ -332,7 +342,6 @@
         return;
       }
 
-      // THIS URL now contains every required query param
       const url = `${GAS_URL}?action=submitSets`
             + `&name=${encodeURIComponent(currentTour)}`
             + `&winner=${encodeURIComponent(winnerVal)}`
