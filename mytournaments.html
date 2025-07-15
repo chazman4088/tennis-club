@@ -163,6 +163,7 @@
     const name = sessionStorage.getItem('username') || 'Guest';
     document.getElementById('signedInAs').textContent = name;
 
+    // ← Correct, exact web-app URL
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbxeVvMwdPrmJNQLMG7ye2kUhOnxCCHB2rWgPGKyXtDSKQ4h78YjAaelygH8ApYyDzZ4/exec';
     let myTours = [], currentTour = '', currentStyle = '', currentPlayers = [];
 
@@ -223,9 +224,9 @@
 
     function showDetails(idx) {
       const t = myTours[idx];
-      currentTour = t.name;
-      currentStyle = t.style.toLowerCase();
-      currentPlayers = t.players.split(',').map(p => p.trim());
+      currentTour     = t.name;
+      currentStyle    = t.style.toLowerCase();
+      currentPlayers  = t.players.split(',').map(p => p.trim());
 
       document.getElementById('detailsContent').innerHTML = `
         <p><strong>Name:</strong> ${t.name}</p>
@@ -287,23 +288,23 @@
       if (!board.length) {
         c.innerHTML = '<div class="empty">No data.</div>';
       } else {
-        let html = '<table><thead><tr>' +
-                   '<th>#</th><th>Name</th><th>Pts</th><th>W</th><th>L</th><th>Sets</th>' +
-                   '</tr></thead><tbody>';
+        let html = '<table><thead><tr>'
+                 + '<th>#</th><th>Name</th><th>Pts</th><th>W</th><th>L</th><th>Sets</th>'
+                 + '</tr></thead><tbody>';
         board.forEach((r,i)=>{
           let bg = '';
           if (isDoubles) {
             const pairIdx = Math.floor(i/2);
             bg = (pairIdx % 2) ? '#f7f7f7':'#ffffff';
           }
-          html += `<tr style="background:${bg}">` +
-                  `<td>${r.position||i+1}</td>` +
-                  `<td>${r.participant}</td>` +
-                  `<td>${r.points}</td>` +
-                  `<td>${r.wins}</td>` +
-                  `<td>${r.losses}</td>` +
-                  `<td>${r.setsWon||0}</td>` +
-                  `</tr>`;
+          html += `<tr style="background:${bg}">`
+               +   `<td>${r.position||i+1}</td>`
+               +   `<td>${r.participant}</td>`
+               +   `<td>${r.points}</td>`
+               +   `<td>${r.wins}</td>`
+               +   `<td>${r.losses}</td>`
+               +   `<td>${r.setsWon||0}</td>`
+               + `</tr>`;
         });
         html += '</tbody></table>';
         c.innerHTML = html;
@@ -312,53 +313,50 @@
 
     document.getElementById('submitSetsBtn').addEventListener('click', () => {
       const btn = document.getElementById('submitSetsBtn');
-      console.log('submitSets clicked');
       btn.textContent = 'Submitting...';
-      btn.disabled = true;
+      btn.disabled   = true;
 
       const winnerVal = document.getElementById('winnerSelect').value;
       const loserVal  = document.getElementById('loserSelect').value;
-      const winner = encodeURIComponent(winnerVal);
-      const loser  = encodeURIComponent(loserVal);
-
       const sets = [];
       for (let i=1; i<=5; i++) {
-        const wv = document.getElementById('set'+i+'W').value;
-        const lv = document.getElementById('set'+i+'L').value;
+        const wv = document.getElementById(`set${i}W`).value;
+        const lv = document.getElementById(`set${i}L`).value;
         if (wv && lv) sets.push(`${wv}-${lv}`);
       }
 
       if (!winnerVal || !loserVal || sets.length===0) {
         alert('Pick players and at least one set.');
-        btn.textContent='Submit Sets'; btn.disabled=false;
+        btn.textContent = 'Submit Sets';
+        btn.disabled   = false;
         return;
       }
 
-      const url = `${GAS_URL}?action=submitSets` +
-            `&name=${encodeURIComponent(currentTour)}` +
-            `&winner=${winner}` +
-            `&loser=${loser}` +
-            `&sets=${encodeURIComponent(sets.join(' '))}` +
-            `&callback=handleSets`;
+      // THIS URL now contains every required query param
+      const url = `${GAS_URL}?action=submitSets`
+            + `&name=${encodeURIComponent(currentTour)}`
+            + `&winner=${encodeURIComponent(winnerVal)}`
+            + `&loser=${encodeURIComponent(loserVal)}`
+            + `&sets=${encodeURIComponent(sets.join(' '))}`
+            + `&callback=handleSets`;
 
       console.log('Submitting to:', url);
-
       const s = document.createElement('script');
       s.src = url;
       document.body.appendChild(s);
     });
 
     function handleSets(resp) {
-      console.log('handleSets response:', resp);
+      console.log('handleSets:', resp);
       const btn = document.getElementById('submitSetsBtn');
-      if (resp && resp.status==='success') {
+      if (resp && resp.status === 'success') {
         alert(`Recorded ${resp.winnerSets}-${resp.loserSets} sets`);
         loadLeaderboard(currentTour);
       } else {
         alert((resp && resp.error) || 'Error recording sets.');
       }
-      btn.textContent='Submit Sets';
-      btn.disabled=false;
+      btn.textContent = 'Submit Sets';
+      btn.disabled   = false;
     }
 
     document.getElementById('closeDetails').addEventListener('click', () => {
