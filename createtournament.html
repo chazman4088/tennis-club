@@ -65,7 +65,6 @@
     }
     .btn-tennis:hover { transform: scale(1.02); }
 
-    /* overlay */
     .overlay {
       position: fixed; top: 0; left: 0;
       width: 100%; height: 100%;
@@ -84,11 +83,18 @@
       color: #2E7D32; min-width: 200px;
     }
 
-    /* —— Responsive Adjustments —— */
     @media (max-width: 400px) {
       .container { padding: 1rem; max-width: 100%; }
       body { padding: 0; }
     }
+
+    /* highlight pairs in doubles */
+    .accent-blue { background: #e1f5fe !important; }
+    .accent-red  { background: #ffebee !important; }
+    .accent-green{ background: #e8f5e9 !important; }
+    .accent-orange { background: #fff3e0 !important; }
+    .accent-purple { background: #f3e5f5 !important; }
+    .accent-teal   { background: #e0f2f1 !important; }
   </style>
 </head>
 <body>
@@ -101,7 +107,8 @@
       </div>
       <div>
         <label for="tCode">Tournament code (4 digits)</label>
-        <input type="text" id="tCode" placeholder="e.g. 1234" pattern="\d{4}" maxlength="4" required/>
+        <input type="text" id="tCode" placeholder="e.g. 1234"
+               pattern="\d{4}" maxlength="4" required/>
       </div>
       <div>
         <label for="tStyle">Tournament style</label>
@@ -137,14 +144,17 @@
   </div>
 
   <script>
-    const GAS_URL     = 'https://script.google.com/macros/s/AKfycbxeVvMwdPrmJNQLMG7ye2kUhOnxCCHB2rWgPGKyXtDSKQ4h78YjAaelygH8ApYyDzZ4/exec';
+    const GAS_URL     = 'https://script.google.com/macros/s/…/exec';
     const form        = document.getElementById('tourneyForm');
     const styleEl     = document.getElementById('tStyle');
     const containerEl = document.getElementById('playerContainer');
     const overlay     = document.getElementById('overlay');
     const statusBox   = document.getElementById('statusBox');
 
-    const colorClasses = ['accent-blue','accent-red','accent-green','accent-orange','accent-purple','accent-teal'];
+    const colorClasses = [
+      'accent-blue','accent-red','accent-green',
+      'accent-orange','accent-purple','accent-teal'
+    ];
     let pickTimes = {}, picks = [];
 
     function showOverlay(txt) {
@@ -157,14 +167,14 @@
 
     function loadPlayers() {
       containerEl.textContent = 'Loading players…';
-      const script = document.createElement('script');
-      script.src = `${GAS_URL}?action=getplayers&callback=handlePlayers`;
-      document.body.appendChild(script);
+      const s = document.createElement('script');
+      s.src = `${GAS_URL}?action=getplayers&callback=handlePlayers`;
+      document.body.appendChild(s);
     }
 
     function handlePlayers(resp) {
       containerEl.innerHTML = '';
-      resp.players.forEach(name => {
+      resp.players.forEach(name=>{
         const lbl = document.createElement('label');
         lbl.className = 'player-label';
         const cb = document.createElement('input');
@@ -180,13 +190,20 @@
       const name = e.target.value;
       if (e.target.checked) pickTimes[name] = Date.now();
       else delete pickTimes[name];
-      picks = Object.keys(pickTimes).sort((a,b)=>pickTimes[a]-pickTimes[b]);
-      containerEl.querySelectorAll('label').forEach(lbl => colorClasses.forEach(c=>lbl.classList.remove(c)));
+
+      picks = Object.keys(pickTimes)
+                    .sort((a,b)=>pickTimes[a]-pickTimes[b]);
+
+      // clear classes
+      containerEl.querySelectorAll('label')
+        .forEach(lbl=> colorClasses.forEach(c=>lbl.classList.remove(c)));
+
       const style = styleEl.value;
-      if (style === 'Doubles' || style === 'Mixed doubles') {
-        picks.forEach((player, idx) => {
-          const cls = colorClasses[Math.floor(idx/2)%colorClasses.length];
-          const lbl = containerEl.querySelector(`input[value="${player}"]`).parentElement;
+      if (style==='Doubles' || style==='Mixed doubles') {
+        picks.forEach((p,i)=>{
+          const pairIdx = Math.floor(i/2);
+          const cls = colorClasses[pairIdx % colorClasses.length];
+          const lbl = containerEl.querySelector(`input[value="${p}"]`).parentNode;
           lbl.classList.add(cls);
         });
       }
@@ -197,16 +214,16 @@
       loadPlayers();
     });
 
-    form.addEventListener('submit', e => {
+    form.addEventListener('submit', e=>{
       e.preventDefault();
       showOverlay('Creating…');
       const style = styleEl.value;
-      const outPlayers = picks.map((player,idx)=>{
+      const outPlayers = picks.map((p,i)=>{
         if (style==='Doubles'||style==='Mixed doubles'){
-          const teamNum=Math.floor(idx/2)+1;
-          return `${player}(${teamNum})`;
+          const team = Math.floor(i/2)+1;
+          return `${p}(${team})`;
         }
-        return player;
+        return p;
       });
       const data = {
         name:      document.getElementById('tName').value.trim(),
@@ -226,22 +243,21 @@
         `code=${encodeURIComponent(data.code)}`,
         `callback=handleAdd`
       ].join('&');
-      const script = document.createElement('script');
-      script.src = `${GAS_URL}?${params}`;
-      document.body.appendChild(script);
+      const s = document.createElement('script');
+      s.src = `${GAS_URL}?${params}`;
+      document.body.appendChild(s);
     });
 
     function handleAdd(resp) {
-      if (resp.status === 'success') {
+      if (resp.status==='success') {
         showOverlay('Tournament created!');
         setTimeout(()=>window.location.href='adminhomepage.html',2000);
       } else {
         showOverlay('Error. Try again.');
-        setTimeout(()=>hideOverlay(),2000);
+        setTimeout(hideOverlay,2000);
       }
     }
 
-    // initialize
     loadPlayers();
   </script>
 </body>
