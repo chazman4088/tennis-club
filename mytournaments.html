@@ -319,31 +319,75 @@
       if (!board.length) {
         c.innerHTML = '<div class="empty">No data.</div>';
       } else {
-        let html = '<table><thead><tr>'
-                 + '<th>#</th><th>Name</th><th>Pts</th><th>W</th><th>L</th><th>Sets</th>'
-                 + '</tr></thead><tbody>';
-        board.forEach((r,i)=>{
-          // for doubles, alternate background per pair
+        let html = '<table><thead><tr>' +
+                   '<th>#</th><th>Name</th><th>Pts</th><th>W</th><th>L</th><th>Sets</th>' +
+                   '</tr></thead><tbody>';
+        board.forEach((r,i) => {
           let bg = '';
           if (isDoubles) {
             const pairIdx = Math.floor(i/2);
             bg = pairIdx % 2 === 0 ? '#f7f7f7' : '#ffffff';
           }
-          html += `<tr style="background:${bg}">`
-               +   `<td>${r.position||i+1}</td>`
-               +   `<td>${r.participant}</td>`
-               +   `<td>${r.points}</td>`
-               +   `<td>${r.wins}</td>`
-               +   `<td>${r.losses}</td>`
-               +   `<td>${r.setsWon||0}</td>`
-               + `</tr>`;
+          html += `<tr style="background:${bg}">` +
+                  `<td>${r.position||i+1}</td>` +
+                  `<td>${r.participant}</td>` +
+                  `<td>${r.points}</td>` +
+                  `<td>${r.wins}</td>` +
+                  `<td>${r.losses}</td>` +
+                  `<td>${r.setsWon||0}</td>` +
+                  `</tr>`;
         });
         html += '</tbody></table>';
         c.innerHTML = html;
       }
     }
 
-    // ... rest unchanged ...
+    document.getElementById('submitSetsBtn').addEventListener('click', () => {
+      const btn = document.getElementById('submitSetsBtn');
+      btn.textContent = 'Submitting...';
+      btn.disabled = true;
+
+      const winner = encodeURIComponent(document.getElementById('winnerSelect').value);
+      const loser  = encodeURIComponent(document.getElementById('loserSelect').value);
+      const sets = [];
+      for (let i=1; i<=5; i++) {
+        const wv = document.getElementById('set'+i+'W').value;
+        const lv = document.getElementById('set'+i+'L').value;
+        if (wv && lv) sets.push(`${wv}-${lv}`);
+      }
+      if (!winner || !loser || sets.length===0) {
+        alert('Choose players and enter at least one set.');
+        btn.textContent = 'Submit Sets';
+        btn.disabled = false;
+        return;
+      }
+      const s = document.createElement('script');
+      s.src = `${GAS_URL}?action=submitSets` +
+              `&name=${encodeURIComponent(currentTour)}` +
+              `&winner=${winner}` +
+              `&loser=${loser}` +
+              `&sets=${encodeURIComponent(sets.join(' '))}` +
+              `&callback=handleSets`;
+      document.body.appendChild(s);
+    });
+
+    function handleSets(resp) {
+      const btn = document.getElementById('submitSetsBtn');
+      if (resp.status==='success') {
+        alert(`Recorded ${resp.winnerSets}-${resp.loserSets} sets`);
+        loadLeaderboard(currentTour);
+      } else {
+        alert(resp.error || 'Error recording sets.');
+      }
+      btn.textContent = 'Submit Sets';
+      btn.disabled = false;
+    }
+
+    document.getElementById('closeDetails').addEventListener('click', () => {
+      document.getElementById('detailsOverlay').classList.remove('active');
+    });
+
+    loadTournaments();
   </script>
 </body>
 </html>
