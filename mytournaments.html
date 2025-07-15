@@ -287,23 +287,23 @@
       if (!board.length) {
         c.innerHTML = '<div class="empty">No data.</div>';
       } else {
-        let html = '<table><thead><tr>'
-                 + '<th>#</th><th>Name</th><th>Pts</th><th>W</th><th>L</th><th>Sets</th>'
-                 + '</tr></thead><tbody>';
+        let html = '<table><thead><tr>' +
+                   '<th>#</th><th>Name</th><th>Pts</th><th>W</th><th>L</th><th>Sets</th>' +
+                   '</tr></thead><tbody>';
         board.forEach((r,i)=>{
           let bg = '';
           if (isDoubles) {
             const pairIdx = Math.floor(i/2);
             bg = (pairIdx % 2) ? '#f7f7f7':'#ffffff';
           }
-          html += `<tr style="background:${bg}">`
-               +   `<td>${r.position||i+1}</td>`
-               +   `<td>${r.participant}</td>`
-               +   `<td>${r.points}</td>`
-               +   `<td>${r.wins}</td>`
-               +   `<td>${r.losses}</td>`
-               +   `<td>${r.setsWon||0}</td>`
-               + `</tr>`;
+          html += `<tr style="background:${bg}">` +
+                  `<td>${r.position||i+1}</td>` +
+                  `<td>${r.participant}</td>` +
+                  `<td>${r.points}</td>` +
+                  `<td>${r.wins}</td>` +
+                  `<td>${r.losses}</td>` +
+                  `<td>${r.setsWon||0}</td>` +
+                  `</tr>`;
         });
         html += '</tbody></table>';
         c.innerHTML = html;
@@ -334,13 +334,12 @@
         return;
       }
 
-      // log the URL for debugging
-      const url = `${GAS_URL}?action=submitSets`
-            + `&name=${encodeURIComponent(currentTour)}`
-            + `&winner=${winner}`
-            + `&loser=${loser}`
-            + `&sets=${encodeURIComponent(sets.join(' '))}`
-            + `&callback=handleSets`;
+      const url = `${GAS_URL}?action=submitSets` +
+            `&name=${encodeURIComponent(currentTour)}` +
+            `&winner=${winner}` +
+            `&loser=${loser}` +
+            `&sets=${encodeURIComponent(sets.join(' '))}` +
+            `&callback=handleSets`;
 
       console.log('Submitting to:', url);
 
