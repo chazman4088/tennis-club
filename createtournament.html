@@ -89,9 +89,9 @@
     }
 
     /* highlight pairs in doubles */
-    .accent-blue { background: #e1f5fe !important; }
-    .accent-red  { background: #ffebee !important; }
-    .accent-green{ background: #e8f5e9 !important; }
+    .accent-blue   { background: #e1f5fe !important; }
+    .accent-red    { background: #ffebee !important; }
+    .accent-green  { background: #e8f5e9 !important; }
     .accent-orange { background: #fff3e0 !important; }
     .accent-purple { background: #f3e5f5 !important; }
     .accent-teal   { background: #e0f2f1 !important; }
@@ -107,8 +107,9 @@
       </div>
       <div>
         <label for="tCode">Tournament code (4 digits)</label>
-        <input type="text" id="tCode" placeholder="e.g. 1234"
-               pattern="\d{4}" maxlength="4" required/>
+        <input
+          type="text" id="tCode" placeholder="e.g. 1234"
+          pattern="\d{4}" maxlength="4" required/>
       </div>
       <div>
         <label for="tStyle">Tournament style</label>
@@ -144,7 +145,7 @@
   </div>
 
   <script>
-    const GAS_URL     = 'https://script.google.com/macros/s/…/exec';
+    const GAS_URL     = 'https://script.google.com/macros/s/AKfycbxeVvMwdPrmJNQLMG7ye2kUhOnxCCHB2rWgPGKyXtDSKQ4h78YjAaelygH8ApYyDzZ4/exec';
     const form        = document.getElementById('tourneyForm');
     const styleEl     = document.getElementById('tStyle');
     const containerEl = document.getElementById('playerContainer');
@@ -194,7 +195,6 @@
       picks = Object.keys(pickTimes)
                     .sort((a,b)=>pickTimes[a]-pickTimes[b]);
 
-      // clear classes
       containerEl.querySelectorAll('label')
         .forEach(lbl=> colorClasses.forEach(c=>lbl.classList.remove(c)));
 
