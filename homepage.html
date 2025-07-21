@@ -12,8 +12,7 @@
     /* —— Tennis Theme —— */
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       font-family: 'Montserrat', sans-serif;
     }
     body {
@@ -23,109 +22,71 @@
       padding: 0;
     }
     .header {
-      position: fixed;
-      top: 1rem;
-      left: 1rem;
-      font-size: 1rem;
-      font-weight: 600;
+      position: fixed; top: 1rem; left: 1rem;
+      font-size: 1rem; font-weight: 600;
     }
     .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 2rem;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 2rem;
       margin-top: 4rem;
     }
     .container h1 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
+      font-size: 2.5rem; margin-bottom: 1rem;
     }
     .btn-tennis {
-      padding: .75rem;
-      font-size: 1rem;
-      background: #FBC02D;
-      color: #2E7D32;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
+      padding: .75rem; font-size: 1rem;
+      background: #FBC02D; color: #2E7D32;
+      border: none; border-radius: 6px;
+      font-weight: bold; cursor: pointer;
       transition: transform .1s ease;
-      text-decoration: none;
-      display: inline-block;
-      margin-top: 1rem;
-      margin-left: .5rem;
+      text-decoration: none; display: inline-block;
+      margin-top: 1rem; margin-left: .5rem;
     }
-    .btn-tennis:hover {
-      transform: scale(1.02);
-    }
+    .btn-tennis:hover { transform: scale(1.02); }
 
     /* —— News Popup —— */
     #newsOverlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      display: none; position: fixed;
+      top:0; left:0; width:100%; height:100%;
       background: rgba(0,0,0,0.5);
-      align-items: center;
-      justify-content: center;
+      align-items: center; justify-content: center;
       z-index: 1000;
     }
-    #newsOverlay.active {
-      display: flex;
-    }
+    #newsOverlay.active { display: flex; }
     #newsPopupBox {
-      background: #fff;
-      padding: 1rem;
-      border-radius: 8px;
-      max-width: 600px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-      color: #2E7D32;
+      background: #fff; padding: 1rem;
+      border-radius: 8px; max-width: 600px;
+      width: 90%; max-height: 80vh;
+      overflow-y: auto; color: #2E7D32;
       text-align: left;
     }
-    .newsMsg {
-      margin-bottom: 1rem;
-    }
+    .newsMsg { margin-bottom: 1rem; }
     .newsDate {
-      font-size: 0.8rem;
-      color: #555;
+      font-size: 0.8rem; color: #555;
       margin-bottom: 0.25rem;
     }
     .newsBubble {
-      background: #F1F1F1;
-      padding: 0.5rem;
-      border-radius: 8px;
-      position: relative;
+      background: #F1F1F1; padding: 0.5rem;
+      border-radius: 8px; position: relative;
     }
     .newsTime {
-      font-size: 0.7rem;
-      color: #888;
-      position: absolute;
-      bottom: 0.25rem;
-      right: 0.5rem;
+      font-size: 0.7rem; color: #888;
+      position: absolute; bottom: 0.25rem; right: 0.5rem;
     }
 
-    /* —— Responsive Adjustments —— */
     @media (max-width: 600px) {
-      .header {
-        top: 0.5rem; left: 0.5rem; font-size: 0.9rem;
-      }
+      .header { top:0.5rem; left:0.5rem; font-size:0.9rem; }
       .container {
-        padding: 1rem; margin-top: 3rem;
+        padding:1rem; margin-top:3rem;
       }
-      .container h1 {
-        font-size: 2rem;
-      }
+      .container h1 { font-size:2rem; }
       .btn-tennis {
-        width: 100%; font-size: 0.95rem;
-        margin-left: 0;
+        width:100%; font-size:0.95rem;
+        margin-left:0;
       }
       #newsPopupBox {
-        max-width: 95%;
-        padding: 0.5rem;
+        max-width:95%; padding:0.5rem;
       }
     }
   </style>
@@ -145,8 +106,10 @@
   <div id="newsOverlay">
     <div id="newsPopupBox">
       <h2>News</h2>
-      <div id="newsContent"></div>
-      <button id="closeNews" class="btn-tennis" style="margin-top:1rem;">Close</button>
+      <div id="newsContent">Loading news…</div>
+      <button id="closeNews" class="btn-tennis" style="margin-top:1rem;">
+        Close
+      </button>
     </div>
   </div>
 
@@ -161,8 +124,14 @@
 
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbxeVvMwdPrmJNQLMG7ye2kUhOnxCCHB2rWgPGKyXtDSKQ4h78YjAaelygH8ApYyDzZ4/exec';
 
-    // Open News popup and fetch data
     document.getElementById('newsBtn').addEventListener('click', () => {
+      // show overlay with loading placeholder
+      const overlay = document.getElementById('newsOverlay');
+      const content = document.getElementById('newsContent');
+      content.textContent = 'Loading news…';
+      overlay.classList.add('active');
+
+      // fetch news
       const s = document.createElement('script');
       s.src = `${GAS_URL}?action=getnews&callback=handleNews`;
       document.body.appendChild(s);
@@ -199,10 +168,8 @@
         msgWrap.append(d, b);
         container.appendChild(msgWrap);
       });
-      document.getElementById('newsOverlay').classList.add('active');
     }
 
-    // Close News popup
     document.getElementById('closeNews').addEventListener('click', () => {
       document.getElementById('newsOverlay').classList.remove('active');
     });
